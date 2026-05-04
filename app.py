@@ -65,26 +65,36 @@ def guardar_en_sheets(fila: list, area_empleado):
         
         # 1. IDENTIFICAR EL ARCHIVO DESTINO
         nombre_area = str(area_empleado).strip().upper()
-        # Buscamos en el diccionario, si no existe usamos el SPREADSHEET_ID por defecto
         target_id = IDS_POR_AREA.get(nombre_area, SPREADSHEET_ID)
         
         # 2. ABRIR EL ARCHIVO CORRESPONDIENTE
         spreadsheet = cliente.open_by_key(target_id)
         
-        # 3. SELECCIONAR PESTAÑA (Normalmente es la primera, "Reportes")
+        # 3. SELECCIONAR PESTAÑA
         try:
-            # Puedes intentar abrir una pestaña con el nombre del área 
-            # o simplemente la pestaña "Reportes" que debe existir en todos
             hoja_destino = spreadsheet.worksheet("Reportes")
         except:
-            # Si no encuentra "Reportes", abre la primera pestaña disponible
             hoja_destino = spreadsheet.get_worksheet(0)
         
-        # 4. GUARDAR
-        hoja_destino.append_row(fila, value_input_option="USER_ENTERED")
+        # --- CAMBIO CLAVE PARA EVITAR SOBREESCRITURA ---
+        # Obtenemos todos los valores de la columna A para saber el número real de registros
+        columna_a = hoja_destino.col_values(1)
+        # La siguiente fila disponible es el total de datos + 1
+        siguiente_fila = len(columna_a) + 1
+        
+        # Definimos el rango exacto para las columnas A a G (7 columnas según tu 'fila')
+        rango_destino = f"A{siguiente_fila}:G{siguiente_fila}"
+        
+        # Usamos update en lugar de append_row para forzar la posición
+        hoja_destino.update(
+            range_name=rango_destino,
+            values=[fila],
+            value_input_option="USER_ENTERED"
+        )
         return True
         
     except Exception as e:
+        import streamlit as st
         st.error(f"❌ Error al guardar en el archivo de {area_empleado}: {e}")
         return False
 
