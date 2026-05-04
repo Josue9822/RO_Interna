@@ -150,19 +150,31 @@ def get_connection():
 def obtener_empleados():
     try:
         creds = get_google_credentials()
-        if not creds:
-            raise Exception("Sin credenciales")
         cliente = gspread.authorize(creds)
         hoja = cliente.open_by_key(SPREADSHEET_ID).worksheet("Empleados")
-        datos = hoja.get_all_records(head=2)  # ← head=2 salta la fila duplicada
-        df = pd.DataFrame(datos)
-        df.columns = df.columns.str.strip()
+        
+        # Obtenemos todos los valores
+        valores = hoja.get_all_values()
+        
+        if not valores:
+            return pd.DataFrame()
+
+        # --- EL CAMBIO ESTÁ AQUÍ ---
+        # Forzamos que los encabezados sean siempre estos para que no dependa del Excel
+        columnas_fijas = ["NOMBRE", "ÁREA", "ROL", "CORREO", "WHATSAPP"]
+        
+        # Si la primera fila ya contiene datos (como Andrea Paz), 
+        # creamos el DataFrame con los datos completos y asignamos nosotros los nombres
+        df = pd.DataFrame(valores, columns=columnas_fijas)
+        
+        # Limpiamos espacios por si acaso
+        for col in df.columns:
+            df[col] = df[col].astype(str).str.strip()
+            
         return df
     except Exception as e:
-        st.warning(f"⚠️ No se pudo cargar empleados desde Sheets: {e}")
-        return pd.DataFrame([
-            {"Nombre": "Juan Perez", "Área": "Logística", "Rol": "Equipo", "Correo": "juanp@gmail.com", "WhatsApp": "983672634"}
-        ])
+        st.error(f"❌ Error al leer empleados: {e}")
+        return pd.DataFrame()
 
 def init_db():
     conn = get_connection()
