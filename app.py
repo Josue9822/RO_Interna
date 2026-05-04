@@ -95,7 +95,7 @@ def actualizar_en_sheets(ro_id, datos_actualizar: list, nombre_area: str):
         if not creds:
             return False
         cliente = gspread.authorize(creds)
-        
+
         target_id = IDS_POR_AREA.get(nombre_area, SPREADSHEET_ID)
         hoja = cliente.open_by_key(target_id).worksheet("Reportes")
 
@@ -379,6 +379,7 @@ def link_wa(num, msg):
 # =========================================================
 query_params = st.query_params
 ro_id = query_params.get("ro_id", None)
+area_reporte = query_params.get("area", "GENERAL")
 
 if ro_id:
     # --- FASE 2: VISTA DEL COLABORADOR ---
@@ -504,7 +505,7 @@ if ro_id:
                     hora_cierre_str    # M: Hora de Cierre
                 ]
 
-                ok = actualizar_en_sheets(ro_id, datos_fase_2)
+                ok = actualizar_en_sheets(ro_id, datos_fase_2, area_reporte)
                 if ok:
                     st.success("✅ Guardado en Sheets")
                 else:
@@ -589,7 +590,8 @@ else:
                         guardar_en_sheets(fila_fase_1, area_receptor)
 
                         app_url = st.secrets.get("APP_URL", "http://localhost:8501")
-                        link = f"{app_url}/?ro_id={last_id}"
+                        area_limpia = urllib.parse.quote(str(area_receptor))
+                        link = f"{app_url}/?ro_id={last_id}&area={area_limpia}"
                         st.success("✅ Papeleta RI Generada {area_receptor}")
                         st.code(link)
                         
