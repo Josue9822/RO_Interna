@@ -49,7 +49,7 @@ def get_google_credentials():
         return None
 
 # --- FUNCIONES DE GOOGLE SHEETS ---
-def guardar_en_sheets(fila: list):
+def guardar_en_sheets(fila: list, area_empleado):
     """Fase 1: Crea una nueva fila en Sheets cuando el Jefe emite el reporte."""
     try:
         creds = get_google_credentials()
