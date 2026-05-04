@@ -92,25 +92,36 @@ def actualizar_en_sheets(ro_id, datos_actualizar: list, nombre_area: str):
     """Fase 2: Busca la fila por ID y la actualiza cuando el Colaborador cierra el reporte."""
     try:
         creds = get_google_credentials()
-        if not creds:
-            return False
+        if not creds: return False
         cliente = gspread.authorize(creds)
         
         area_key = str(nombre_area).strip().upper() 
         target_id = IDS_POR_AREA.get(area_key, SPREADSHEET_ID)
-        
         spreadsheet = cliente.open_by_key(target_id)
-        # Intentar buscar "Reportes", si no, usar la primera hoja
+        
         try:
             hoja = spreadsheet.worksheet("Reportes")
         except:
             hoja = spreadsheet.get_worksheet(0)
-            
+
+        # ID exacto a buscar
         id_buscar = f"RI-{int(ro_id):03d}"
-        celda = hoja.find(id_buscar, in_column=1)
+        
+        # CAMBIO CLAVE: Buscamos coincidencia EXACTA para evitar sobreescribir otros
+        import re
+        # Esto busca el ID exacto, no algo que "contenga" el ID
+        fmt = re.compile(r'^' + id_buscar + r'$')
+        celda = hoja.find(fmt, in_column=1)
 
         if celda:
             fila_idx = celda.row
+            # Verificamos si la celda de "Estado" (Columna K / 11) ya está como "Resuelto"
+            # Esto evita que alguien vuelva a enviar un reporte ya cerrado
+            estado_actual = hoja.cell(fila_idx, 11).value
+            if estado_actual == "Resuelto":
+                st.warning("⚠️ Este reporte ya fue cerrado anteriormente.")
+                return False
+
             hoja.update(
                 values=[datos_actualizar],
                 range_name=f"H{fila_idx}:M{fila_idx}",
@@ -118,10 +129,10 @@ def actualizar_en_sheets(ro_id, datos_actualizar: list, nombre_area: str):
             )
             return True
         else:
-            st.error("No se encontró el reporte en Sheets para actualizar.")
+            st.error(f"No se encontró el ID {id_buscar} en {nombre_area}")
             return False
     except Exception as e:
-        st.error(f"ERROR al actualizar en Sheets: {e}")
+        st.error(f"Error técnico: {e}")
         return False
 
 # --- 2. SEGURIDAD / LOGIN ---
