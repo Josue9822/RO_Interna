@@ -550,6 +550,7 @@ else:
                     elif len(desc) >= 20:
                         # Buscamos los datos del receptor (usando la columna normalizada 'NOMBRE')
                         row_rec = df_empleados[df_empleados['NOMBRE'] == receptor].iloc[0]
+                        area_receptor = row_rec.get('ÁREA', row_rec.get('AREA', 'GENERAL'))
                         dt_emision = datetime.now(ZoneInfo("America/Lima"))
 
                         conn = get_connection()
@@ -576,11 +577,11 @@ else:
                             str(desc),
                             "", "", "", "Pendiente", "", ""
                         ]
-                        guardar_en_sheets(fila_fase_1)
+                        guardar_en_sheets(fila_fase_1, area_receptor)
 
                         app_url = st.secrets.get("APP_URL", "http://localhost:8501")
                         link = f"{app_url}/?ro_id={last_id}"
-                        st.success("✅ Papeleta RI Generada")
+                        st.success("✅ Papeleta RI Generada {area_receptor}")
                         st.code(link)
                         
                         col_g, col_w = st.columns(2)
