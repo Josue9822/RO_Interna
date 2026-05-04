@@ -486,24 +486,43 @@ else:
     if t_emitir:
         with t_emitir:
             st.markdown('<div class="form-header-box"><h4>Generar Nuevo Reporte</h4></div>', unsafe_allow_html=True)
+            
             with st.form("emision"):
-                jefes = df_empleados[df_empleados['Rol'] == 'Jefe']['Nombre'].tolist()
-                equipo = df_empleados[df_empleados['Rol'] == 'Equipo']['Nombre'].tolist()
+                # --- BLINDAJE CONTRA KEYERROR ---
+                # Normalizamos nombres de columnas a mayúsculas para evitar fallos por minúsculas/mayúsculas
+                df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
+                
+                # Verificamos si existen las columnas necesarias
+                if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
+                    jefes = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe']['NOMBRE'].tolist()
+                    equipo = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo']['NOMBRE'].tolist()
+                else:
+                    st.error(f"⚠️ Error: No se encontraron las columnas 'Nombre' o 'Rol'. Columnas actuales: {list(df_empleados.columns)}")
+                    jefes = []
+                    equipo = []
+
                 c_e, c_r = st.columns(2)
-                emisor = c_e.selectbox("¿Quién Reporta?", jefes)
-                receptor = c_r.selectbox("¿A quién se reporta?", equipo)
+                emisor = c_e.selectbox("¿Quién Reporta?", jefes if jefes else ["Sin datos"])
+                receptor = c_r.selectbox("¿A quién se reporta?", equipo if equipo else ["Sin datos"])
                 desc = st.text_area("Descripción de la Incidencia:", height=120)
 
                 if st.form_submit_button("GENERAR PAPELETA"):
-                    if len(desc) >= 20:
-                        row_rec = df_empleados[df_empleados['Nombre'] == receptor].iloc[0]
+                    if not jefes or not equipo:
+                        st.error("❌ No se pueden generar reportes sin lista de personal.")
+                    elif len(desc) >= 20:
+                        # Buscamos los datos del receptor (usando la columna normalizada 'NOMBRE')
+                        row_rec = df_empleados[df_empleados['NOMBRE'] == receptor].iloc[0]
                         dt_emision = datetime.now(ZoneInfo("America/Lima"))
 
                         conn = get_connection()
                         cur = conn.cursor()
+                        # Asegúrate que los nombres de columnas en row_rec coincidan con tu Excel (ÁREA, CORREO, WHATSAPP)
                         cur.execute(
                             "INSERT INTO reportes (empleado_nombre, empleado_area, empleado_correo, empleado_wa, emisor, descripcion_falta, fecha_emision) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                            (receptor, row_rec['Área'], row_rec['Correo'], row_rec['WhatsApp'], emisor, desc, dt_emision)
+                            (receptor, row_rec.get('ÁREA', row_rec.get('AREA', 'N/A')), 
+                            row_rec.get('CORREO', 'N/A'), 
+                            row_rec.get('WHATSAPP', 'N/A'), 
+                            emisor, desc, dt_emision)
                         )
                         conn.commit()
                         last_id = cur.lastrowid
@@ -513,7 +532,7 @@ else:
                             f"RI-{int(last_id):03d}",
                             dt_emision.strftime('%d/%m/%Y'),
                             dt_emision.strftime('%H:%M:%S'),
-                            str(row_rec['Área']),
+                            str(row_rec.get('ÁREA', row_rec.get('AREA', 'N/A'))),
                             str(receptor),
                             str(emisor),
                             str(desc),
@@ -521,14 +540,17 @@ else:
                         ]
                         guardar_en_sheets(fila_fase_1)
 
-                        # URL pública del app (no localhost)
                         app_url = st.secrets.get("APP_URL", "http://localhost:8501")
                         link = f"{app_url}/?ro_id={last_id}"
                         st.success("✅ Papeleta RI Generada")
                         st.code(link)
+                        
                         col_g, col_w = st.columns(2)
-                        col_g.markdown(f'<a href="{link_gmail(row_rec["Correo"], f"RI #{last_id}", f"Hola, completa aquí: {link}")}" target="_blank" class="btn-gmail">📧 Gmail</a>', unsafe_allow_html=True)
-                        col_w.markdown(f'<a href="{link_wa(row_rec["WhatsApp"], f"RI pendiente: {link}")}" target="_blank" class="btn-wa">💬 WhatsApp</a>', unsafe_allow_html=True)
+                        correo_rec = row_rec.get('CORREO', '')
+                        wa_rec = row_rec.get('WHATSAPP', '')
+                        
+                        col_g.markdown(f'<a href="{link_gmail(correo_rec, f"RI #{last_id}", f"Hola, completa aquí: {link}")}" target="_blank" class="btn-gmail">📧 Gmail</a>', unsafe_allow_html=True)
+                        col_w.markdown(f'<a href="{link_wa(wa_rec, f"RI pendiente: {link}")}" target="_blank" class="btn-wa">💬 WhatsApp</a>', unsafe_allow_html=True)
                     else:
                         st.error("❌ Descripción muy corta (mínimo 20 caracteres).")
 
