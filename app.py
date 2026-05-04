@@ -23,7 +23,9 @@ SPREADSHEET_ID = "1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8"
 # Diccionario de IDs de Google Sheets por Área
 # Reemplaza los ejemplos con los IDs reales de tus nuevos archivos
 IDS_POR_AREA = {
-    "REPORTE_SSOMA": "1s28ZbfklZZ9q7rnsL1JE1-JavosreQkJzrPyfBJVoL0",
+    "SSOMA": "1s28ZbfklZZ9q7rnsL1JE1-JavosreQkJzrPyfBJVoL0",
+    "LOGÍSTICA": "1E-giuxgI2VuJXmQCwhLqlgud7KLdsnDiorC4v5Ypuv0",
+    "CONTABILIDAD": "1b5u3k3WMrEWZC-PmcuQf1JUA6gy-m1uGtXCAGWK_AIQ"
     
 }
 # El SPREADSHEET_ID original se usará como respaldo (General)
