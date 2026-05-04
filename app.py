@@ -209,26 +209,25 @@ def get_connection():
     return sqlite3.connect(DB_NAME)
 
 def obtener_empleados():
+    def obtener_empleados():
     try:
         creds = get_google_credentials()
         cliente = gspread.authorize(creds)
         hoja = cliente.open_by_key(SPREADSHEET_ID).worksheet("Empleados")
         
-        # Obtenemos todos los valores
         valores = hoja.get_all_values()
         
-        if not valores:
+        if not valores or len(valores) < 2: # Si está vacío o solo tiene títulos
             return pd.DataFrame()
 
-        # --- EL CAMBIO ESTÁ AQUÍ ---
-        # Forzamos que los encabezados sean siempre estos para que no dependa del Excel
+        # --- LA SOLUCIÓN ---
+        # valores[0] son los títulos del Excel (los ignoramos)
+        # valores[1:] son los empleados reales (Andrea, Juan, Fernando...)
         columnas_fijas = ["NOMBRE", "ÁREA", "ROL", "CORREO", "WHATSAPP"]
         
-        # Si la primera fila ya contiene datos (como Andrea Paz), 
-        # creamos el DataFrame con los datos completos y asignamos nosotros los nombres
-        df = pd.DataFrame(valores, columns=columnas_fijas)
+        df = pd.DataFrame(valores[1:], columns=columnas_fijas)
         
-        # Limpiamos espacios por si acaso
+        # Limpiamos espacios
         for col in df.columns:
             df[col] = df[col].astype(str).str.strip()
             
