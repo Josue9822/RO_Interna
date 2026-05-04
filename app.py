@@ -209,7 +209,6 @@ def get_connection():
     return sqlite3.connect(DB_NAME)
 
 def obtener_empleados():
-    def obtener_empleados():
     try:
         creds = get_google_credentials()
         cliente = gspread.authorize(creds)
