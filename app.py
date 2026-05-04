@@ -95,10 +95,17 @@ def actualizar_en_sheets(ro_id, datos_actualizar: list, nombre_area: str):
         if not creds:
             return False
         cliente = gspread.authorize(creds)
-
-        target_id = IDS_POR_AREA.get(nombre_area, SPREADSHEET_ID)
-        hoja = cliente.open_by_key(target_id).worksheet("Reportes")
-
+        
+        area_key = str(nombre_area).strip().upper() 
+        target_id = IDS_POR_AREA.get(area_key, SPREADSHEET_ID)
+        
+        spreadsheet = cliente.open_by_key(target_id)
+        # Intentar buscar "Reportes", si no, usar la primera hoja
+        try:
+            hoja = spreadsheet.worksheet("Reportes")
+        except:
+            hoja = spreadsheet.get_worksheet(0)
+            
         id_buscar = f"RI-{int(ro_id):03d}"
         celda = hoja.find(id_buscar, in_column=1)
 
