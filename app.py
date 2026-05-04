@@ -25,7 +25,12 @@ SPREADSHEET_ID = "1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8"
 IDS_POR_AREA = {
     "SSOMA": "1s28ZbfklZZ9q7rnsL1JE1-JavosreQkJzrPyfBJVoL0",
     "LOGÍSTICA": "1E-giuxgI2VuJXmQCwhLqlgud7KLdsnDiorC4v5Ypuv0",
-    "CONTABILIDAD": "1b5u3k3WMrEWZC-PmcuQf1JUA6gy-m1uGtXCAGWK_AIQ"
+    "CONTABILIDAD": "1b5u3k3WMrEWZC-PmcuQf1JUA6gy-m1uGtXCAGWK_AIQ",
+    "COMERCIAL": "1gIvIQcAJoSdJrhwgaxL0m2ffha-T5AuaON6E2L_tia8",
+    "INGENIERÍA": "1-6LjDUhd48fx7FO-YYd3SjDLwQWM2I9dyxlI5dF2__0",
+    "GESTIÓN DE PROCESOS": "1fMV0yRo84-P4mtmzk95qm2gRZrrLrBwifFFdF7ThGog",
+    "EQUIPOS": "1hh0rSIi8uQX0Egkf5xJDw_GisHpA9WpVGCeN8nF2BNw"
+
     
 }
 # El SPREADSHEET_ID original se usará como respaldo (General)
@@ -83,14 +88,16 @@ def guardar_en_sheets(fila: list, area_empleado):
         st.error(f"❌ Error al guardar en el archivo de {area_empleado}: {e}")
         return False
 
-def actualizar_en_sheets(ro_id, datos_actualizar: list):
+def actualizar_en_sheets(ro_id, datos_actualizar: list, nombre_area: str):
     """Fase 2: Busca la fila por ID y la actualiza cuando el Colaborador cierra el reporte."""
     try:
         creds = get_google_credentials()
         if not creds:
             return False
         cliente = gspread.authorize(creds)
-        hoja = cliente.open_by_key(SPREADSHEET_ID).worksheet("Reportes")
+        
+        target_id = IDS_POR_AREA.get(nombre_area, SPREADSHEET_ID)
+        hoja = cliente.open_by_key(target_id).worksheet("Reportes")
 
         id_buscar = f"RI-{int(ro_id):03d}"
         celda = hoja.find(id_buscar, in_column=1)
