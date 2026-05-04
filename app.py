@@ -20,6 +20,14 @@ st.set_page_config(page_title="RI - Batalla de Junin", page_icon="🏗️", layo
 URL_SHEETS = "https://docs.google.com/spreadsheets/d/1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8/edit?usp=sharing"
 SPREADSHEET_ID = "1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8"
 
+# Diccionario de IDs de Google Sheets por Área
+# Reemplaza los ejemplos con los IDs reales de tus nuevos archivos
+IDS_POR_AREA = {
+    "REPORTE_SSOMA": "1s28ZbfklZZ9q7rnsL1JE1-JavosreQkJzrPyfBJVoL0",
+    
+}
+# El SPREADSHEET_ID original se usará como respaldo (General)
+
 # Rutas relativas al proyecto (producción)
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 PATH_SELLOS = os.path.join(ASSETS_DIR, "sellos")
@@ -45,14 +53,32 @@ def guardar_en_sheets(fila: list):
     """Fase 1: Crea una nueva fila en Sheets cuando el Jefe emite el reporte."""
     try:
         creds = get_google_credentials()
-        if not creds:
-            return False
+        if not creds: return False
         cliente = gspread.authorize(creds)
-        hoja = cliente.open_by_key(SPREADSHEET_ID).worksheet("Reportes")
-        hoja.append_row(fila, value_input_option="USER_ENTERED")
+        
+        # 1. IDENTIFICAR EL ARCHIVO DESTINO
+        nombre_area = str(area_empleado).strip().upper()
+        # Buscamos en el diccionario, si no existe usamos el SPREADSHEET_ID por defecto
+        target_id = IDS_POR_AREA.get(nombre_area, SPREADSHEET_ID)
+        
+        # 2. ABRIR EL ARCHIVO CORRESPONDIENTE
+        spreadsheet = cliente.open_by_key(target_id)
+        
+        # 3. SELECCIONAR PESTAÑA (Normalmente es la primera, "Reportes")
+        try:
+            # Puedes intentar abrir una pestaña con el nombre del área 
+            # o simplemente la pestaña "Reportes" que debe existir en todos
+            hoja_destino = spreadsheet.worksheet("Reportes")
+        except:
+            # Si no encuentra "Reportes", abre la primera pestaña disponible
+            hoja_destino = spreadsheet.get_worksheet(0)
+        
+        # 4. GUARDAR
+        hoja_destino.append_row(fila, value_input_option="USER_ENTERED")
         return True
+        
     except Exception as e:
-        st.error(f"ERROR al guardar en Sheets: {e}")
+        st.error(f"❌ Error al guardar en el archivo de {area_empleado}: {e}")
         return False
 
 def actualizar_en_sheets(ro_id, datos_actualizar: list):
