@@ -1,0 +1,20 @@
+# Secretos - NUNCA subir a GitHub
+.streamlit/secrets.toml
+
+# Base de datos local
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# PDFs generados
+Reporte_BJ_*.pdf
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
