@@ -632,31 +632,73 @@ else:
         try:
             creds = get_google_credentials()
             cliente = gspread.authorize(creds)
-            hoja = cliente.open_by_key(SPREADSHEET_ID).worksheet("Reportes")
-            df_reportes = pd.DataFrame(hoja.get_all_records())
-        except Exception:
+            
+            todos_los_datos = []
+            
+            # 1. BARRIDO DE TODAS LAS ÁREAS
+            # Recorremos cada ID del diccionario para traer la info de todos los Excels
+            for area_nombre, sheet_id in IDS_POR_AREA.items():
+                try:
+                    ss = cliente.open_by_key(sheet_id)
+                    try:
+                        hoja_area = ss.worksheet("Reportes")
+                    except:
+                        hoja_area = ss.get_worksheet(0)
+                    
+                    # Traemos los datos y los convertimos en DataFrame
+                    registros = hoja_area.get_all_records()
+                    if registros:
+                        df_temp = pd.DataFrame(registros)
+                        todos_los_datos.append(df_temp)
+                except Exception as e:
+                    # Si un área está vacía o falla, pasamos a la siguiente
+                    continue
+
+            if todos_los_datos:
+                df_reportes = pd.concat(todos_los_datos, ignore_index=True)
+            else:
+                df_reportes = pd.DataFrame()
+
+        except Exception as e:
+            st.error(f"Error al recopilar estadísticas: {e}")
             df_reportes = pd.DataFrame()
 
-        if not df_reportes.empty and "Colaborador Responsable" in df_reportes.columns:
-            df_reportes = df_reportes[df_reportes["Colaborador Responsable"].astype(str).str.strip() != ""]
-            df_st = df_reportes.groupby(["Colaborador Responsable", "Área Operativa"]).apply(
+        # 2. PROCESAMIENTO DE LOS DATOS RECOPILADOS
+        # IMPORTANTE: Verifica que los nombres de columnas en tus Excels sean EXACTAMENTE estos
+        col_nombre = "Colaborador Responsable"
+        col_area = "Área Operativa"
+        col_id = "ID Reporte"
+        col_estado = "Estado"
+
+        if not df_reportes.empty and col_nombre in df_reportes.columns:
+            # Limpiamos filas vacías y la fila de títulos que se pudo colar
+            df_reportes = df_reportes[df_reportes[col_nombre].astype(str).str.strip() != ""]
+            # Filtramos para que no cuente la fila de ejemplo/títulos si existe
+            df_reportes = df_reportes[df_reportes[col_nombre] != "Colaborador Responsable"]
+
+            # Agrupamos
+            df_st = df_reportes.groupby([col_nombre, col_area]).apply(
                 lambda x: pd.Series({
-                    "Total RI": x["ID Reporte"].count(),
-                    "RI Respondidas": (x["Estado"] == "Resuelto").sum()
+                    "Total RI": x[col_id].count(),
+                    "RI Respondidas": (x[col_estado] == "Resuelto").sum()
                 })
             ).reset_index()
-            df_st.rename(columns={"Colaborador Responsable": "Colaborador", "Área Operativa": "Cargo"}, inplace=True)
+            
+            df_st.rename(columns={col_nombre: "Colaborador", col_area: "Cargo"}, inplace=True)
             df_st = df_st.sort_values(by="Total RI", ascending=False)
 
+            # Aplicar color y mostrar
             def color_row(row):
                 return ['background-color: #ffe6e6; color: #990000; font-weight: bold'] * len(row) if row["Total RI"] >= 3 \
                     else ['background-color: #f0fdf4; color: #333'] * len(row)
 
             st.dataframe(df_st.style.apply(color_row, axis=1), use_container_width=True)
+            
+            # Alertas Legales
             criticos = df_st[df_st["Total RI"] >= 3]
             for i, row in criticos.iterrows():
                 st.markdown(f'<div class="memo-alert">🚨 ALERTA LEGAL<br>El colaborador {row["Colaborador"]} acumula {row["Total RI"]} reportes.<br>SE PROCEDERÁ CON LA EMISIÓN DE UN MEMORÁNDUM.</div>', unsafe_allow_html=True)
         else:
-            st.info("No hay datos en Sheets o las columnas no coinciden.")
+            st.info("No se encontraron reportes en los archivos de las áreas.")
 
 st.markdown("<div class='bj-footer'>Batalla de Junin S.A.C. © 2026</div>", unsafe_allow_html=True)
