@@ -76,16 +76,15 @@ def guardar_en_sheets(fila: list, area_empleado):
         except:
             hoja_destino = spreadsheet.get_worksheet(0)
         
-        # --- CAMBIO CLAVE PARA EVITAR SOBREESCRITURA ---
-        # Obtenemos todos los valores de la columna A para saber el número real de registros
+        # --- CORRECCIÓN DEL ERROR 400 ---
+        # Contamos cuántos IDs hay para ir a la siguiente fila
         columna_a = hoja_destino.col_values(1)
-        # La siguiente fila disponible es el total de datos + 1
         siguiente_fila = len(columna_a) + 1
         
-        # Definimos el rango exacto para las columnas A a G (7 columnas según tu 'fila')
-        rango_destino = f"A{siguiente_fila}:G{siguiente_fila}"
+        # Cambiamos G por M, porque tu lista 'fila_fase_1' tiene 13 elementos
+        rango_destino = f"A{siguiente_fila}:M{siguiente_fila}"
         
-        # Usamos update en lugar de append_row para forzar la posición
+        # 4. GUARDAR
         hoja_destino.update(
             range_name=rango_destino,
             values=[fila],
@@ -94,7 +93,6 @@ def guardar_en_sheets(fila: list, area_empleado):
         return True
         
     except Exception as e:
-        import streamlit as st
         st.error(f"❌ Error al guardar en el archivo de {area_empleado}: {e}")
         return False
 
