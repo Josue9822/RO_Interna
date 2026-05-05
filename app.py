@@ -23,14 +23,19 @@ SPREADSHEET_ID = "1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8"
 # Diccionario de IDs de Google Sheets por Área
 # Reemplaza los ejemplos con los IDs reales de tus nuevos archivos
 IDS_POR_AREA = {
-    "SSOMA": "1s28ZbfklZZ9q7rnsL1JE1-JavosreQkJzrPyfBJVoL0",
-    "LOGÍSTICA": "1E-giuxgI2VuJXmQCwhLqlgud7KLdsnDiorC4v5Ypuv0",
+    "PLANEAMIENTO ESTRATEGICO": "1D0aOTXOMeEgqJdJAJ0vtEQ0rRdh5eyjDUXX0BSXRBkE",
+    "ADMINISTRACION": "1k0mjAYv6MRFpGVejPfR1FCnpRDwpqQiAZFceiQGjPqo",
+    "RECURSOS HUMANOS": "1qXTCHeRviUK7ViJWsCNcDuQ7p409QijljJUmt9fZcHs",
     "CONTABILIDAD": "1b5u3k3WMrEWZC-PmcuQf1JUA6gy-m1uGtXCAGWK_AIQ",
+    "G.P. CONSTRUCCION": "1fcLm3me-fLHwUj_ugfzwYT2XMBwTQRNgjNJHrvIvij4",
+    "SSOMA": "1s28ZbfklZZ9q7rnsL1JE1-JavosreQkJzrPyfBJVoL0",
+    "EQUIPOS": "1hh0rSIi8uQX0Egkf5xJDw_GisHpA9WpVGCeN8nF2BNw",
+    "LOGISTICA": "1E-giuxgI2VuJXmQCwhLqlgud7KLdsnDiorC4v5Ypuv0",
     "COMERCIAL": "1gIvIQcAJoSdJrhwgaxL0m2ffha-T5AuaON6E2L_tia8",
-    "INGENIERÍA": "1-6LjDUhd48fx7FO-YYd3SjDLwQWM2I9dyxlI5dF2__0",
-    "GESTIÓN DE PROCESOS": "1fMV0yRo84-P4mtmzk95qm2gRZrrLrBwifFFdF7ThGog",
-    "EQUIPOS": "1hh0rSIi8uQX0Egkf5xJDw_GisHpA9WpVGCeN8nF2BNw"
-
+    "INGENIERIA": "1-6LjDUhd48fx7FO-YYd3SjDLwQWM2I9dyxlI5dF2__0",
+    "COMEX": "1bdTBvFXTxKW1pXDF3MTG4G7LnyCNcs2RB6WyOzB-cpM",
+    "OBRAS CIVILES": "12uaFomgVzDSwegTd27KR7sN20xt9qqCvyfpxpBz-wlk",
+    "GESTION DE PROCESOS": "1fMV0yRo84-P4mtmzk95qm2gRZrrLrBwifFFdF7ThGog"
     
 }
 # El SPREADSHEET_ID original se usará como respaldo (General)
