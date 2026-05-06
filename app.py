@@ -566,43 +566,20 @@ else:
             
             with st.form("emision"):
                 # --- BLINDAJE CONTRA KEYERROR ---
-                # 1. Limpieza de datos (Esto garantiza que el área coincida exactamente)
-                df_empleados['NOMBRE'] = df_empleados['NOMBRE'].astype(str).str.strip()
-                df_empleados['ÁREA'] = df_empleados['ÁREA'].astype(str).str.strip()
-                df_empleados['ROL'] = df_empleados['ROL'].astype(str).str.strip().str.upper()
-
+                df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
+                
+                # Verificamos si existen las columnas necesarias
                 if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
-                    # 2. Lista de Jefes
-                    jefes = sorted(df_empleados[df_empleados['ROL'] == 'JEFE']['NOMBRE'].unique().tolist())
-                    
-                    c_e, c_r = st.columns(2)
-                    
-                    # 3. Selector del Jefe (Mantenemos tu diseño de columnas)
-                    emisor = c_e.selectbox("¿Quién Reporta?", jefes, key="emisor_principal")
-                    
-                    # 4. Buscamos el área del jefe seleccionado inmediatamente
-                    area_jefe_data = df_empleados[df_empleados['NOMBRE'] == emisor]
-                    area_actual = area_jefe_data['ÁREA'].iloc[0] if not area_jefe_data.empty else ""
-                    
-                    # 5. Filtramos el equipo de esa área
-                    equipo = sorted(df_empleados[
-                        (df_empleados['ÁREA'] == area_actual) & 
-                        (df_empleados['ROL'] == 'EQUIPO')
-                    ]['NOMBRE'].unique().tolist())
-
-                    # 6. Selector del Receptor (Filtrado dinámicamente)
-                    # El key=f"receptor_{emisor}" es lo que hace que cambie la lista sin errores
-                    receptor = c_r.selectbox(
-                        f"Equipo de {area_actual}:", 
-                        equipo if equipo else ["Sin personal en esta área"],
-                        key=f"receptor_{emisor}"
-                    )
+                    jefes = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe']['NOMBRE'].tolist()
+                    equipo = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo']['NOMBRE'].tolist()
                 else:
-                    st.error("No se encontraron las columnas necesarias en el Excel.")
-                    jefes, equipo = [], []
+                    st.error(f"⚠️ Error: No se encontraron las columnas 'Nombre' o 'Rol'. Columnas actuales: {list(df_empleados.columns)}")
+                    jefes = []
+                    equipo = []
 
-                # --- HASTA AQUÍ EL CAMBIO. LO SIGUIENTE SE MANTIENE IGUAL ---
-
+                c_e, c_r = st.columns(2)
+                emisor = c_e.selectbox("¿Quién Reporta?", jefes if jefes else ["Sin datos"])
+                receptor = c_r.selectbox("¿A quién se reporta?", equipo if equipo else ["Sin datos"])
                 desc = st.text_area("Descripción de la Incidencia:", height=120)
 
 
