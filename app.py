@@ -566,49 +566,41 @@ else:
             
             with st.form("emision"):
                 # --- BLINDAJE CONTRA KEYERROR ---
-                # Normalizamos nombres de columnas a mayúsculas para evitar fallos por minúsculas/mayúsculas
+                # 1. Normalización de datos (asegura que coincidan los nombres y áreas)
                 df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
                 df_empleados['NOMBRE'] = df_empleados['NOMBRE'].astype(str).str.strip()
                 df_empleados['ÁREA'] = df_empleados['ÁREA'].astype(str).str.strip()
                 df_empleados['ROL'] = df_empleados['ROL'].astype(str).str.strip().str.upper()
-                
-                # Verificamos si existen las columnas necesarias
+
                 if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
-                    # Obtener lista de jefes
+                    # 2. Lista de Jefes única y ordenada
                     lista_jefes = sorted(df_empleados[df_empleados['ROL'] == 'JEFE']['NOMBRE'].unique().tolist())
                     
                     c_e, c_r = st.columns(2)
                     
-                    # Selector de Jefe con un callback para limpiar el receptor
-                    emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", lista_jefes, key="selector_emisor")
+                    # 3. Selector del Jefe
+                    emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", lista_jefes, key="emisor_principal")
                     
-                    # 2. BUSQUEDA DINÁMICA DE ÁREA
-                    # Buscamos el área que corresponde EXACTAMENTE al nombre seleccionado
-                    area_detectada = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].unique()
+                    # 4. Obtener el área del jefe seleccionado directamente del DataFrame
+                    # Buscamos la primera coincidencia del nombre elegido
+                    area_del_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].values[0]
                     
-                    if len(area_detectada) > 0:
-                        area_actual = area_detectada[0]
-                        # 3. FILTRADO DE EQUIPO POR ÁREA DETECTADA
-                        equipo_filtrado = sorted(df_empleados[
-                            (df_empleados['ÁREA'] == area_actual) & 
-                            (df_empleados['ROL'] == 'EQUIPO')
-                        ]['NOMBRE'].unique().tolist())
-                    else:
-                        area_actual = "Área no encontrada"
-                        equipo_filtrado = []
+                    # 5. Filtrar equipo: misma área Y rol 'EQUIPO'
+                    equipo_del_area = sorted(df_empleados[
+                        (df_empleados['ÁREA'] == area_del_jefe) & 
+                        (df_empleados['ROL'] == 'EQUIPO')
+                    ]['NOMBRE'].unique().tolist())
 
-                    # 4. EL SELECTOR DEL RECEPTOR (Usamos el área_actual en el label y un key dinámico)
-                    # Esto obliga a la lista a cambiar SI O SI cuando cambias de jefe
+                    # 6. Selector del Receptor con KEY DINÁMICO
+                    # El key=f"receptor_{emisor}" obliga a Streamlit a actualizar la lista al cambiar el jefe
                     receptor = c_r.selectbox(
-                        f"Equipo de {area_actual}:", 
-                        equipo_filtrado if equipo_filtrado else ["Sin personal en esta área"],
-                        key=f"lista_{emisor}" # ESTO ES LO QUE SOLUCIONA EL PROBLEMA
+                        f"Equipo de {area_del_jefe}:", 
+                        equipo_del_area if equipo_del_area else ["Sin personal en esta área"],
+                        key=f"receptor_{emisor}"
                     )
-                    
-                    # Guardamos el área en una variable para usarla luego en el botón de guardar
-                    area_receptor = area_actual 
                 else:
-                    st.error("Columnas NOMBRE o ROL no encontradas en el Excel")
+                    st.error("⚠️ Error: No se encontraron las columnas 'NOMBRE' o 'ROL' en el Excel.")
+                    lista_jefes, equipo_del_area = [], []
 
                 # --- HASTA AQUÍ EL CAMBIO. LO SIGUIENTE SE MANTIENE IGUAL ---
 
