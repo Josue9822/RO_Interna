@@ -584,7 +584,7 @@ else:
 
 
                 if st.form_submit_button("GENERAR PAPELETA"):
-                    if not lista_jefes or not equipo_filtrado or receptor == "No hay personal en esta área":
+                    if not jefes or not equipo:
                         st.error("❌ No se pueden generar reportes sin lista de personal.")
                     elif len(desc) >= 20:
                         # Buscamos los datos del receptor (usando la columna normalizada 'NOMBRE')
