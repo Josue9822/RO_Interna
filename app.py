@@ -566,41 +566,55 @@ else:
             
             with st.form("emision"):
                 # --- BLINDAJE CONTRA KEYERROR ---
-                # 1. Normalización de datos (asegura que coincidan los nombres y áreas)
+                # 1. Normalización y Limpieza de datos
                 df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
                 df_empleados['NOMBRE'] = df_empleados['NOMBRE'].astype(str).str.strip()
                 df_empleados['ÁREA'] = df_empleados['ÁREA'].astype(str).str.strip()
                 df_empleados['ROL'] = df_empleados['ROL'].astype(str).str.strip().str.upper()
 
                 if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
-                    # 2. Lista de Jefes única y ordenada
+                    # 2. Obtener lista de jefes
                     lista_jefes = sorted(df_empleados[df_empleados['ROL'] == 'JEFE']['NOMBRE'].unique().tolist())
                     
+                    st.subheader("Generar Nuevo Reporte")
+                    
+                    # --- SELECTORES FUERA DEL FORMULARIO PARA ACTUALIZACIÓN INSTANTÁNEA ---
                     c_e, c_r = st.columns(2)
                     
-                    # 3. Selector del Jefe
+                    # Selector del Jefe
                     emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", lista_jefes, key="emisor_principal")
                     
-                    # 4. Obtener el área del jefe seleccionado directamente del DataFrame
-                    # Buscamos la primera coincidencia del nombre elegido
-                    area_del_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].values[0]
+                    # Buscar área y filtrar equipo en tiempo real
+                    area_jefe_fila = df_empleados[df_empleados['NOMBRE'] == emisor]
+                    area_del_jefe = area_jefe_fila['ÁREA'].values[0] if not area_jefe_fila.empty else "Área no encontrada"
                     
-                    # 5. Filtrar equipo: misma área Y rol 'EQUIPO'
                     equipo_del_area = sorted(df_empleados[
                         (df_empleados['ÁREA'] == area_del_jefe) & 
                         (df_empleados['ROL'] == 'EQUIPO')
                     ]['NOMBRE'].unique().tolist())
 
-                    # 6. Selector del Receptor con KEY DINÁMICO
-                    # El key=f"receptor_{emisor}" obliga a Streamlit a actualizar la lista al cambiar el jefe
+                    # Selector del Receptor (Se actualiza apenas cambias el jefe)
                     receptor = c_r.selectbox(
                         f"Equipo de {area_del_jefe}:", 
                         equipo_del_area if equipo_del_area else ["Sin personal en esta área"],
                         key=f"receptor_{emisor}"
                     )
+
+                    # --- FORMULARIO SOLO PARA LA DESCRIPCIÓN Y EL ENVÍO ---
+                    with st.form("form_reporte", clear_on_submit=True):
+                        desc = st.text_area("Descripción de la Incidencia:", height=120)
+                        
+                        if st.form_submit_button("GENERAR PAPELETA"):
+                            if not equipo_del_area or receptor == "Sin personal en esta área":
+                                st.error(f"❌ No se puede generar: El área {area_del_jefe} no tiene personal.")
+                            elif len(desc) < 20:
+                                st.warning("⚠️ La descripción debe tener al menos 20 caracteres.")
+                            else:
+                                # AQUÍ VA TU LÓGICA DE GUARDAR EN GOOGLE SHEETS
+                                # Ejemplo: guardar_en_sheets([emisor, receptor, area_del_jefe, desc])
+                                st.success(f"✅ Reporte generado: {emisor} -> {receptor} ({area_del_jefe})")
                 else:
                     st.error("⚠️ Error: No se encontraron las columnas 'NOMBRE' o 'ROL' en el Excel.")
-                    lista_jefes, equipo_del_area = [], []
 
                 # --- HASTA AQUÍ EL CAMBIO. LO SIGUIENTE SE MANTIENE IGUAL ---
 
