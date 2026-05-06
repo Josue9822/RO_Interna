@@ -564,44 +564,38 @@ else:
         with t_emitir:
             st.markdown('<div class="form-header-box"><h4>Generar Nuevo Reporte</h4></div>', unsafe_allow_html=True)
             
-            with st.form("emision"):
-                # --- BLINDAJE CONTRA KEYERROR ---
-                df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
-                
-                # Verificamos si existen las columnas necesarias
-                if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns and 'ÁREA' in df_empleados.columns:
-                    # 1. Obtenemos solo los Jefes para el primer selectbox
-                    jefes = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe']['NOMBRE'].tolist()
-                else:
-                    st.error(f"⚠️ Error: No se encontraron las columnas 'Nombre', 'Rol' o 'Área'.")
-                    jefes = []
+            # --- BLINDAJE Y PREPARACIÓN (Fuera del formulario para que sea dinámico) ---
+            df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
+            
+            if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns and 'ÁREA' in df_empleados.columns:
+                jefes = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe']['NOMBRE'].tolist()
+            else:
+                st.error("⚠️ Error: No se encontraron las columnas necesarias.")
+                jefes = []
 
-                c_e, c_r = st.columns(2)
-                
-                # Selector de Emisor
-                emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", jefes if jefes else ["Sin datos"])
+            # SELECTORES FUERA DEL FORM PARA ACTUALIZACIÓN INSTANTÁNEA
+            c_e, c_r = st.columns(2)
+            emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", jefes if jefes else ["Sin datos"])
 
-                # --- LÓGICA DE FILTRADO DINÁMICO ---
-                if emisor != "Sin datos":
-                    # 2. Obtenemos el área del jefe seleccionado
-                    area_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].iloc[0]
-                    
-                    # 3. Filtramos el equipo que pertenezca a esa misma área
-                    equipo = df_empleados[
-                        (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo') & 
-                        (df_empleados['ÁREA'] == area_jefe)
-                    ]['NOMBRE'].tolist()
-                else:
-                    equipo = []
+            # Filtrado dinámico instantáneo
+            equipo = []
+            if emisor != "Sin datos":
+                area_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].iloc[0]
+                equipo = df_empleados[
+                    (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo') & 
+                    (df_empleados['ÁREA'] == area_jefe)
+                ]['NOMBRE'].tolist()
 
-                # Selector de Receptor (filtrado por área)
-                receptor = c_r.selectbox("¿A quién se reporta? (Equipo del Área)", equipo if equipo else ["Sin personal en esta área"])
-                
+            receptor = c_r.selectbox("¿A quién se reporta? (Equipo del Área)", equipo if equipo else ["Sin personal"])
+
+            # FORMULARIO SOLO PARA LA ACCIÓN DE GUARDAR
+            with st.form("emision_final"):
                 desc = st.text_area("Descripción de la Incidencia:", height=120)
+                submit = st.form_submit_button("GENERAR PAPELETA")
 
-                if st.form_submit_button("GENERAR PAPELETA"):
-                    if not jefes or not equipo:
-                        st.error("❌ No se puede generar el reporte. Verifique que el jefe seleccionado tenga equipo a cargo.")
+                if submit:
+                    if not equipo or receptor == "Sin personal":
+                        st.error("❌ No se puede generar el reporte sin un receptor válido.")
                     elif len(desc) >= 20:
                         # Buscamos los datos del receptor
                         row_rec = df_empleados[df_empleados['NOMBRE'] == receptor].iloc[0]
@@ -611,7 +605,7 @@ else:
                         conn = get_connection()
                         cur = conn.cursor()
                         cur.execute(
-                            "INSERT INTO reportes (empleado_nombre, empleado_area, empleado_correo, empleado_wa, emisor, description_falta, fecha_emision) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            "INSERT INTO reportes (empleado_nombre, empleado_area, empleado_correo, empleado_wa, emisor, descripcion_falta, fecha_emision) VALUES (?, ?, ?, ?, ?, ?, ?)",
                             (receptor, area_receptor, 
                             row_rec.get('CORREO', 'N/A'), 
                             row_rec.get('WHATSAPP', 'N/A'), 
@@ -621,30 +615,19 @@ else:
                         last_id = cur.lastrowid
                         conn.close()
 
-                        fila_fase_1 = [
-                            f"RI-{int(last_id):03d}",
-                            dt_emision.strftime('%d/%m/%Y'),
-                            dt_emision.strftime('%H:%M:%S'),
-                            str(area_receptor),
-                            str(receptor),
-                            str(emisor),
-                            str(desc),
-                            "", "", "", "Pendiente", "", ""
-                        ]
+                        # Lógica de guardado en Sheets y links (se mantiene igual)
+                        fila_fase_1 = [f"RI-{int(last_id):03d}", dt_emision.strftime('%d/%m/%Y'), dt_emision.strftime('%H:%M:%S'), str(area_receptor), str(receptor), str(emisor), str(desc), "", "", "", "Pendiente", "", ""]
                         guardar_en_sheets(fila_fase_1, area_receptor)
 
                         app_url = st.secrets.get("APP_URL", "http://localhost:8501")
-                        area_limpia = urllib.parse.quote(str(area_receptor))
-                        link = f"{app_url}/?ro_id={last_id}&area={area_limpia}"
-                        st.success(f"✅ Papeleta RI Generada para el área: {area_receptor}")
+                        link = f"{app_url}/?ro_id={last_id}&area={urllib.parse.quote(str(area_receptor))}"
+                        
+                        st.success(f"✅ Papeleta RI Generada")
                         st.code(link)
                         
                         col_g, col_w = st.columns(2)
-                        correo_rec = row_rec.get('CORREO', '')
-                        wa_rec = row_rec.get('WHATSAPP', '')
-                        
-                        col_g.markdown(f'<a href="{link_gmail(correo_rec, f"RI #{last_id}", f"Hola, completa aquí: {link}")}" target="_blank" class="btn-gmail">📧 Gmail</a>', unsafe_allow_html=True)
-                        col_w.markdown(f'<a href="{link_wa(wa_rec, f"RI pendiente: {link}")}" target="_blank" class="btn-wa">💬 WhatsApp</a>', unsafe_allow_html=True)
+                        col_g.markdown(f'<a href="{link_gmail(row_rec.get("CORREO",""), f"RI #{last_id}", f"Hola, completa aquí: {link}")}" target="_blank" class="btn-gmail">📧 Gmail</a>', unsafe_allow_html=True)
+                        col_w.markdown(f'<a href="{link_wa(row_rec.get("WHATSAPP",""), f"RI pendiente: {link}")}" target="_blank" class="btn-wa">💬 WhatsApp</a>', unsafe_allow_html=True)
                     else:
                         st.error("❌ Descripción muy corta (mínimo 20 caracteres).")
 
