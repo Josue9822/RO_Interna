@@ -571,20 +571,42 @@ else:
                 
                 # Verificamos si existen las columnas necesarias
                 if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
-                    jefes = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe']['NOMBRE'].tolist()
-                    equipo = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo']['NOMBRE'].tolist()
-                else:
-                    st.error(f"⚠️ Error: No se encontraron las columnas 'Nombre' o 'Rol'. Columnas actuales: {list(df_empleados.columns)}")
-                    jefes = []
-                    equipo = []
+                    # 1. Lista de Jefes
+                    lista_jefes = df_empleados[df_empleados['ROL'].str.upper() == 'JEFE']['NOMBRE'].tolist()
+                    
+                    c_e, c_r = st.columns(2)
+                    
+                    # Selector del Jefe
+                    emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", lista_jefes if lista_jefes else ["Sin datos"])
+                    
+                    # 2. Lógica para filtrar por área según el Jefe seleccionado
+                    try:
+                        area_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].iloc[0]
+                        equipo_filtrado = df_empleados[
+                            (df_empleados['ÁREA'] == area_jefe) & 
+                            (df_empleados['ROL'].str.upper() == 'EQUIPO')
+                        ]['NOMBRE'].tolist()
+                    except:
+                        area_jefe = "GENERAL"
+                        equipo_filtrado = []
 
-                c_e, c_r = st.columns(2)
-                emisor = c_e.selectbox("¿Quién Reporta?", jefes if jefes else ["Sin datos"])
-                receptor = c_r.selectbox("¿A quién se reporta?", equipo if equipo else ["Sin datos"])
+                    # Selector del Receptor (Filtrado)
+                    receptor = c_r.selectbox(
+                        f"Equipo de {area_jefe}:", 
+                        equipo_filtrado if equipo_filtrado else ["No hay personal en esta área"]
+                    )
+                else:
+                    st.error("⚠️ Error: No se encontraron las columnas 'NOMBRE' o 'ROL'.")
+                    lista_jefes = []
+                    equipo_filtrado = []
+
+                # --- HASTA AQUÍ EL CAMBIO. LO SIGUIENTE SE MANTIENE IGUAL ---
+
                 desc = st.text_area("Descripción de la Incidencia:", height=120)
 
+
                 if st.form_submit_button("GENERAR PAPELETA"):
-                    if not jefes or not equipo:
+                    if not lista_jefes or not equipo_filtrado or receptor == "No hay personal en esta área":
                         st.error("❌ No se pueden generar reportes sin lista de personal.")
                     elif len(desc) >= 20:
                         # Buscamos los datos del receptor (usando la columna normalizada 'NOMBRE')
