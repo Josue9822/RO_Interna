@@ -566,55 +566,60 @@ else:
             
             with st.form("emision"):
                 # --- BLINDAJE CONTRA KEYERROR ---
-                # 1. Normalización y Limpieza de datos
+                # 1. Limpieza de datos (Crucial para que coincidan nombres y áreas)
                 df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
                 df_empleados['NOMBRE'] = df_empleados['NOMBRE'].astype(str).str.strip()
                 df_empleados['ÁREA'] = df_empleados['ÁREA'].astype(str).str.strip()
                 df_empleados['ROL'] = df_empleados['ROL'].astype(str).str.strip().str.upper()
 
                 if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
-                    # 2. Obtener lista de jefes
+                    # 2. Lista de Jefes
                     lista_jefes = sorted(df_empleados[df_empleados['ROL'] == 'JEFE']['NOMBRE'].unique().tolist())
                     
                     st.subheader("Generar Nuevo Reporte")
                     
-                    # --- SELECTORES FUERA DEL FORMULARIO PARA ACTUALIZACIÓN INSTANTÁNEA ---
+                    # --- SELECTORES FUERA DE CUALQUIER FORMULARIO ---
                     c_e, c_r = st.columns(2)
                     
                     # Selector del Jefe
-                    emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", lista_jefes, key="emisor_principal")
+                    emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", lista_jefes, key="emisor_root")
                     
-                    # Buscar área y filtrar equipo en tiempo real
+                    # Búsqueda del área en tiempo real
                     area_jefe_fila = df_empleados[df_empleados['NOMBRE'] == emisor]
                     area_del_jefe = area_jefe_fila['ÁREA'].values[0] if not area_jefe_fila.empty else "Área no encontrada"
                     
+                    # Filtrado del equipo por esa área
                     equipo_del_area = sorted(df_empleados[
                         (df_empleados['ÁREA'] == area_del_jefe) & 
                         (df_empleados['ROL'] == 'EQUIPO')
                     ]['NOMBRE'].unique().tolist())
 
-                    # Selector del Receptor (Se actualiza apenas cambias el jefe)
+                    # Selector del Receptor
                     receptor = c_r.selectbox(
                         f"Equipo de {area_del_jefe}:", 
                         equipo_del_area if equipo_del_area else ["Sin personal en esta área"],
                         key=f"receptor_{emisor}"
                     )
 
-                    # --- FORMULARIO SOLO PARA LA DESCRIPCIÓN Y EL ENVÍO ---
-                    with st.form("form_reporte", clear_on_submit=True):
+                    # --- FORMULARIO SOLO PARA DESCRIPCIÓN Y BOTÓN ---
+                    # Cambiamos el nombre del formulario para evitar conflictos
+                    with st.form("envio_reporte_final"):
                         desc = st.text_area("Descripción de la Incidencia:", height=120)
                         
-                        if st.form_submit_button("GENERAR PAPELETA"):
+                        # Botón de envío
+                        enviar = st.form_submit_button("GENERAR PAPELETA")
+                        
+                        if enviar:
                             if not equipo_del_area or receptor == "Sin personal en esta área":
-                                st.error(f"❌ No se puede generar: El área {area_del_jefe} no tiene personal.")
+                                st.error(f"❌ No se puede generar: El área {area_del_jefe} no tiene personal asignado.")
                             elif len(desc) < 20:
                                 st.warning("⚠️ La descripción debe tener al menos 20 caracteres.")
                             else:
-                                # AQUÍ VA TU LÓGICA DE GUARDAR EN GOOGLE SHEETS
-                                # Ejemplo: guardar_en_sheets([emisor, receptor, area_del_jefe, desc])
-                                st.success(f"✅ Reporte generado: {emisor} -> {receptor} ({area_del_jefe})")
+                                # AQUÍ EJECUTAS TU FUNCIÓN DE GUARDADO
+                                # Ejemplo: guardar_datos(emisor, receptor, area_del_jefe, desc)
+                                st.success(f"✅ Reporte generado: {emisor} reportó a {receptor}")
                 else:
-                    st.error("⚠️ Error: No se encontraron las columnas 'NOMBRE' o 'ROL' en el Excel.")
+                    st.error("No se encontraron las columnas 'NOMBRE' o 'ROL' en el archivo.")
 
                 # --- HASTA AQUÍ EL CAMBIO. LO SIGUIENTE SE MANTIENE IGUAL ---
 
