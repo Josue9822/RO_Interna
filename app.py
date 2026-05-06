@@ -574,43 +574,41 @@ else:
                 
                 # Verificamos si existen las columnas necesarias
                 if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
-                    # 1. Obtener la lista de jefes (limpios)
-                    lista_jefes = df_empleados[df_empleados['ROL'] == 'JEFE']['NOMBRE'].unique().tolist()
+                    # 1. Lista de Jefes única
+                    lista_jefes = sorted(df_empleados[df_empleados['ROL'] == 'JEFE']['NOMBRE'].unique().tolist())
                     
                     c_e, c_r = st.columns(2)
                     
                     # Selector del Jefe
-                    emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", lista_jefes if lista_jefes else ["Sin datos"])
+                    emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", lista_jefes)
                     
-                    # 2. Buscar el área del jefe seleccionado (usando strip de nuevo por seguridad)
-                    try:
-                        # Filtramos eliminando cualquier espacio residual en la comparación
-                        fila_jefe = df_empleados[df_empleados['NOMBRE'] == emisor.strip()]
+                    # 2. Obtener el área real del jefe seleccionado
+                    # Filtramos el dataframe para encontrar el área de ese nombre específico
+                    datos_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]
+                    
+                    if not datos_jefe.empty:
+                        area_jefe = datos_jefe['ÁREA'].iloc[0]
                         
-                        if not fila_jefe.empty:
-                            area_jefe = fila_jefe['ÁREA'].iloc[0]
-                            
-                            # 3. Filtrar equipo: misma área Y rol 'EQUIPO'
-                            equipo_filtrado = df_empleados[
-                                (df_empleados['ÁREA'] == area_jefe) & 
-                                (df_empleados['ROL'] == 'EQUIPO')
-                            ]['NOMBRE'].unique().tolist()
-                        else:
-                            area_jefe = "DESCONOCIDA"
-                            equipo_filtrado = []
-                    except Exception as e:
-                        area_jefe = "ERROR"
+                        # 3. Filtrar equipo por esa área
+                        equipo_filtrado = sorted(df_empleados[
+                            (df_empleados['ÁREA'] == area_jefe) & 
+                            (df_empleados['ROL'] == 'EQUIPO')
+                        ]['NOMBRE'].unique().tolist())
+                    else:
+                        area_jefe = "No encontrada"
                         equipo_filtrado = []
 
-                    # Selector del Receptor
+                    # --- EL TRUCO DEL KEY ---
+                    # Usamos 'key=f"receptor_{emisor}"' para que Streamlit sepa que si cambia el emisor, 
+                    # DEBE resetear este componente por completo.
                     receptor = c_r.selectbox(
                         f"Equipo de {area_jefe}:", 
-                        equipo_filtrado if equipo_filtrado else ["No hay personal en esta área"]
+                        equipo_filtrado if equipo_filtrado else ["Sin personal"],
+                        key=f"receptor_{emisor}" 
                     )
                 else:
-                    st.error("⚠️ Error: No se encontraron las columnas necesarias.")
-                    lista_jefes = []
-                    equipo_filtrado = []
+                    st.error("No se encontraron columnas NOMBRE o ROL.")
+                    lista_jefes, equipo_filtrado = [], []
 
                 # --- HASTA AQUÍ EL CAMBIO. LO SIGUIENTE SE MANTIENE IGUAL ---
 
