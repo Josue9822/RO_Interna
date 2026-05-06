@@ -213,6 +213,7 @@ st.markdown("""
 def get_connection():
     return sqlite3.connect(DB_NAME)
 
+@st.cache_data(ttl=600)
 def obtener_empleados():
     try:
         creds = get_google_credentials()
