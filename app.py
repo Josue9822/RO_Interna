@@ -569,35 +569,50 @@ else:
                 df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
                 
                 # Verificamos si existen las columnas necesarias
-                if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
+                if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns and 'ÁREA' in df_empleados.columns:
+                    # 1. Obtenemos solo los Jefes para el primer selectbox
                     jefes = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe']['NOMBRE'].tolist()
-                    equipo = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo']['NOMBRE'].tolist()
                 else:
-                    st.error(f"⚠️ Error: No se encontraron las columnas 'Nombre' o 'Rol'. Columnas actuales: {list(df_empleados.columns)}")
+                    st.error(f"⚠️ Error: No se encontraron las columnas 'Nombre', 'Rol' o 'Área'.")
                     jefes = []
-                    equipo = []
 
                 c_e, c_r = st.columns(2)
-                emisor = c_e.selectbox("¿Quién Reporta?", jefes if jefes else ["Sin datos"])
-                receptor = c_r.selectbox("¿A quién se reporta?", equipo if equipo else ["Sin datos"])
-                desc = st.text_area("Descripción de la Incidencia:", height=120)
+                
+                # Selector de Emisor
+                emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", jefes if jefes else ["Sin datos"])
 
+                # --- LÓGICA DE FILTRADO DINÁMICO ---
+                if emisor != "Sin datos":
+                    # 2. Obtenemos el área del jefe seleccionado
+                    area_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].iloc[0]
+                    
+                    # 3. Filtramos el equipo que pertenezca a esa misma área
+                    equipo = df_empleados[
+                        (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo') & 
+                        (df_empleados['ÁREA'] == area_jefe)
+                    ]['NOMBRE'].tolist()
+                else:
+                    equipo = []
+
+                # Selector de Receptor (filtrado por área)
+                receptor = c_r.selectbox("¿A quién se reporta? (Equipo del Área)", equipo if equipo else ["Sin personal en esta área"])
+                
+                desc = st.text_area("Descripción de la Incidencia:", height=120)
 
                 if st.form_submit_button("GENERAR PAPELETA"):
                     if not jefes or not equipo:
-                        st.error("❌ No se pueden generar reportes sin lista de personal.")
+                        st.error("❌ No se puede generar el reporte. Verifique que el jefe seleccionado tenga equipo a cargo.")
                     elif len(desc) >= 20:
-                        # Buscamos los datos del receptor (usando la columna normalizada 'NOMBRE')
+                        # Buscamos los datos del receptor
                         row_rec = df_empleados[df_empleados['NOMBRE'] == receptor].iloc[0]
                         area_receptor = row_rec.get('ÁREA', row_rec.get('AREA', 'GENERAL'))
                         dt_emision = datetime.now(ZoneInfo("America/Lima"))
 
                         conn = get_connection()
                         cur = conn.cursor()
-                        # Asegúrate que los nombres de columnas en row_rec coincidan con tu Excel (ÁREA, CORREO, WHATSAPP)
                         cur.execute(
-                            "INSERT INTO reportes (empleado_nombre, empleado_area, empleado_correo, empleado_wa, emisor, descripcion_falta, fecha_emision) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                            (receptor, row_rec.get('ÁREA', row_rec.get('AREA', 'N/A')), 
+                            "INSERT INTO reportes (empleado_nombre, empleado_area, empleado_correo, empleado_wa, emisor, description_falta, fecha_emision) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            (receptor, area_receptor, 
                             row_rec.get('CORREO', 'N/A'), 
                             row_rec.get('WHATSAPP', 'N/A'), 
                             emisor, desc, dt_emision)
@@ -610,7 +625,7 @@ else:
                             f"RI-{int(last_id):03d}",
                             dt_emision.strftime('%d/%m/%Y'),
                             dt_emision.strftime('%H:%M:%S'),
-                            str(row_rec.get('ÁREA', row_rec.get('AREA', 'N/A'))),
+                            str(area_receptor),
                             str(receptor),
                             str(emisor),
                             str(desc),
@@ -621,7 +636,7 @@ else:
                         app_url = st.secrets.get("APP_URL", "http://localhost:8501")
                         area_limpia = urllib.parse.quote(str(area_receptor))
                         link = f"{app_url}/?ro_id={last_id}&area={area_limpia}"
-                        st.success("✅ Papeleta RI Generada {area_receptor}")
+                        st.success(f"✅ Papeleta RI Generada para el área: {area_receptor}")
                         st.code(link)
                         
                         col_g, col_w = st.columns(2)
