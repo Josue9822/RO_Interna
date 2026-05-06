@@ -571,16 +571,30 @@ else:
                 
                 # Verificamos si existen las columnas necesarias
                 if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns:
-                    jefes = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe']['NOMBRE'].tolist()
-                    equipo = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo']['NOMBRE'].tolist()
+                    jefes_df = df_empleados[df_empleados['ROL'].str.upper() == 'JEFE']
+                    lista_jefes = jefes_df['NOMBRE'].tolist()
                 else:
                     st.error(f"⚠️ Error: No se encontraron las columnas 'Nombre' o 'Rol'. Columnas actuales: {list(df_empleados.columns)}")
                     jefes = []
                     equipo = []
 
                 c_e, c_r = st.columns(2)
-                emisor = c_e.selectbox("¿Quién Reporta?", jefes if jefes else ["Sin datos"])
-                receptor = c_r.selectbox("¿A quién se reporta?", equipo if equipo else ["Sin datos"])
+                emisor = c_e.selectbox("¿Quién Reporta?", lista_jefes if lista_jefes else ["Sin datos"])
+    
+                # 3. Buscamos el área del jefe seleccionado
+                area_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].iloc[0]
+                
+                # 4. Filtramos el equipo que pertenece a esa misma área
+                equipo_filtrado = df_empleados[
+                    (df_empleados['ÁREA'] == area_jefe) & 
+                    (df_empleados['ROL'].str.upper() == 'EQUIPO')
+                ]['NOMBRE'].tolist()
+                
+                # 5. Mostramos la lista filtrada
+                receptor = c_r.selectbox(
+                    f"Personal de {area_jefe}:", 
+                    equipo_filtrado if equipo_filtrado else ["No hay personal en esta área"]
+                )
                 desc = st.text_area("Descripción de la Incidencia:", height=120)
 
                 if st.form_submit_button("GENERAR PAPELETA"):
