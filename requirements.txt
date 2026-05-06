@@ -3,4 +3,3 @@ fpdf2
 gspread
 google-auth
 pandas
-Pillow
