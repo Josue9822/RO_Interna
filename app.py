@@ -470,12 +470,12 @@ if ro_id:
                     desc = st.text_area(f"Detalle {label}", placeholder=guide, key=f"txt_{key}", height=220)
                 with c2:
                     st.markdown("<div style='color:#333; font-weight:bold; margin-bottom:10px;'>- Análisis de los 5 Porqués</div>", unsafe_allow_html=True)
-                    p1 = st.text_input("1. ¿Por qué ocurrió?", key=f"p1_{key}", placeholder="Causa directa...")
-                    p2 = st.text_input("2. ¿Por qué ocurrió lo anterior?", key=f"p2_{key}")
-                    p3 = st.text_input("3. ¿Por qué?", key=f"p3_{key}")
-                    p4 = st.text_input("4. ¿Por qué?", key=f"p4_{key}")
+                    p1 = st.text_input("P1. ¿Por qué ocurrió el problema?", key=f"p1_{key}", placeholder="Causa directa...")
+                    p2 = st.text_input("P2. ¿Por qué ocurrió lo descrito en el punto 1?", key=f"p2_{key}")
+                    p3 = st.text_input("P3. ¿Cual es el origen de esa situacion (punto2)?", key=f"p3_{key}")
+                    p4 = st.text_input("P4. ¿Por qué se permitió que ocurriera lo anterior?", key=f"p4_{key}")
                     st.markdown("<div style='color:#990000; font-weight:bold; font-size:12px;'>🔻 POSIBLE CAUSA RAÍZ</div>", unsafe_allow_html=True)
-                    p5 = st.text_input("5. ¿Por qué? (Causa Raíz)", key=f"p5_{key}", placeholder="Defina raíz...")
+                    p5 = st.text_input("P5. ¿Por qué? (Causa Raíz)", key=f"p5_{key}", placeholder="Defina raíz...")
                 return {"desc": desc, "w": f"{p1}|{p2}|{p3}|{p4}|{p5}"}
             return None
 
