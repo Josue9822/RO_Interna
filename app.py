@@ -163,8 +163,8 @@ def login_screen():
             st.markdown("<h3 style='text-align:center; color:#990000;'>CONTROL DE ACCESO</h3>", unsafe_allow_html=True)
             
             with st.form("login_bj"):
-                u = st.text_input("Correo Institucional (Usuario)")
-                p = st.text_input("WhatsApp (Contraseña)", type="password")
+                u = st.text_input("Correo Institucional")
+                p = st.text_input("Contraseña", type="password")
                 
                 if st.form_submit_button("INGRESAR AL SISTEMA"):
                     # Buscamos al usuario en el DataFrame de empleados
@@ -548,7 +548,7 @@ if ro_id:
 else:
     login_screen()
 
-    # --- FASE 1: VISTA DEL JEFE ---
+    # --- FASE 1: VISTA DEL JEFE (MODIFICADA) ---
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=300)
@@ -564,46 +564,41 @@ else:
 
     if t_emitir:
         with t_emitir:
-            st.markdown('<div class="form-header-box"><h4>Generar Nuevo Reporte</h4></div>', unsafe_allow_html=True)
+            # 1. Recuperamos automáticamente los datos del jefe que inició sesión
+            jefe_actual = st.session_state.user_data
+            emisor = jefe_actual['NOMBRE']
+            area_jefe = jefe_actual['ÁREA']
+
+            st.markdown(f'<div class="form-header-box"><h4>Generar Reporte - Área: {area_jefe}</h4></div>', unsafe_allow_html=True)
+            st.info(f"Sesión iniciada como Jefe: **{emisor}**")
             
-            # --- BLINDAJE Y PREPARACIÓN (Fuera del formulario para que sea dinámico) ---
+            # --- PREPARACIÓN DE DATOS ---
             df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
-            
-            if 'ROL' in df_empleados.columns and 'NOMBRE' in df_empleados.columns and 'ÁREA' in df_empleados.columns:
-                jefes = df_empleados[df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe']['NOMBRE'].tolist()
-            else:
-                st.error("⚠️ Error: No se encontraron las columnas necesarias.")
-                jefes = []
 
-            # SELECTORES FUERA DEL FORM PARA ACTUALIZACIÓN INSTANTÁNEA
-            c_e, c_r = st.columns(2)
-            emisor = c_e.selectbox("¿Quién Reporta? (Jefe)", jefes if jefes else ["Sin datos"])
+            # 2. FILTRADO DINÁMICO: Solo integrantes del equipo de SU misma área
+            equipo = df_empleados[
+                (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo') & 
+                (df_empleados['ÁREA'] == area_jefe)
+            ]['NOMBRE'].tolist()
 
-            # Filtrado dinámico instantáneo
-            equipo = []
-            if emisor != "Sin datos":
-                area_jefe = df_empleados[df_empleados['NOMBRE'] == emisor]['ÁREA'].iloc[0]
-                equipo = df_empleados[
-                    (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo') & 
-                    (df_empleados['ÁREA'] == area_jefe)
-                ]['NOMBRE'].tolist()
+            # Selector de receptor (solo su equipo)
+            receptor = st.selectbox("¿A quién se reporta? (Personal de su área)", equipo if equipo else ["Sin personal"])
 
-            receptor = c_r.selectbox("¿A quién se reporta? (Equipo del Área)", equipo if equipo else ["Sin personal"])
-
-            # FORMULARIO SOLO PARA LA ACCIÓN DE GUARDAR
+            # FORMULARIO PARA LA ACCIÓN DE GUARDAR
             with st.form("emision_final"):
                 desc = st.text_area("Descripción de la Incidencia:", height=120)
                 submit = st.form_submit_button("GENERAR PAPELETA")
 
                 if submit:
                     if not equipo or receptor == "Sin personal":
-                        st.error("❌ No se puede generar el reporte sin un receptor válido.")
+                        st.error("❌ No se puede generar el reporte sin un receptor válido en su área.")
                     elif len(desc) >= 20:
-                        # Buscamos los datos del receptor
+                        # Buscamos los datos del receptor seleccionado
                         row_rec = df_empleados[df_empleados['NOMBRE'] == receptor].iloc[0]
-                        area_receptor = row_rec.get('ÁREA', row_rec.get('AREA', 'GENERAL'))
+                        area_receptor = row_rec.get('ÁREA', area_jefe)
                         dt_emision = datetime.now(ZoneInfo("America/Lima"))
 
+                        # --- GUARDADO EN BASE DE DATOS LOCAL ---
                         conn = get_connection()
                         cur = conn.cursor()
                         cur.execute(
@@ -617,19 +612,20 @@ else:
                         last_id = cur.lastrowid
                         conn.close()
 
-                        # Lógica de guardado en Sheets y links (se mantiene igual)
+                        # --- GUARDADO EN GOOGLE SHEETS ---
                         fila_fase_1 = [f"RI-{int(last_id):03d}", dt_emision.strftime('%d/%m/%Y'), dt_emision.strftime('%H:%M:%S'), str(area_receptor), str(receptor), str(emisor), str(desc), "", "", "", "Pendiente", "", ""]
                         guardar_en_sheets(fila_fase_1, area_receptor)
 
+                        # --- GENERACIÓN DE LINK Y NOTIFICACIONES ---
                         app_url = st.secrets.get("APP_URL", "http://localhost:8501")
                         link = f"{app_url}/?ro_id={last_id}&area={urllib.parse.quote(str(area_receptor))}"
                         
-                        st.success(f"✅ Papeleta RI Generada")
+                        st.success(f"✅ Papeleta RI Generada Exitosamente")
                         st.code(link)
                         
                         col_g, col_w = st.columns(2)
-                        col_g.markdown(f'<a href="{link_gmail(row_rec.get("CORREO",""), f"RI #{last_id}", f"Hola, completa aquí: {link}")}" target="_blank" class="btn-gmail">📧 Gmail</a>', unsafe_allow_html=True)
-                        col_w.markdown(f'<a href="{link_wa(row_rec.get("WHATSAPP",""), f"RI pendiente: {link}")}" target="_blank" class="btn-wa">💬 WhatsApp</a>', unsafe_allow_html=True)
+                        col_g.markdown(f'<a href="{link_gmail(row_rec.get("CORREO",""), f"RI #{last_id}", f"Hola, se ha generado un reporte. Completa el análisis aquí: {link}")}" target="_blank" class="btn-gmail">📧 Enviar por Gmail</a>', unsafe_allow_html=True)
+                        col_w.markdown(f'<a href="{link_wa(row_rec.get("WHATSAPP",""), f"Hola, tienes un RI pendiente por completar: {link}")}" target="_blank" class="btn-wa">💬 Enviar por WhatsApp</a>', unsafe_allow_html=True)
                     else:
                         st.error("❌ Descripción muy corta (mínimo 20 caracteres).")
 
