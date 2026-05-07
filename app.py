@@ -633,75 +633,73 @@ else:
         try:
             creds = get_google_credentials()
             cliente = gspread.authorize(creds)
-            jefe_actual = st.session_state.user_data
-            area_raw = str(jefe_actual['ÁREA']).strip().upper()
             
-            st.markdown(f'<div class="form-header-box"><h4>Panel de Control - Área: {area_raw}</h4></div>', unsafe_allow_html=True)
+            todos_los_datos = []
             
-            # --- LOCALIZAR EL SHEET ---
-            sheet_id = None
-            import unicodedata
-            def norm(t): return ''.join(c for c in unicodedata.normalize('NFD', str(t)) if unicodedata.category(c) != 'Mn').upper().strip()
+            # 1. BARRIDO DE TODAS LAS ÁREAS
+            # Recorremos cada ID del diccionario para traer la info de todos los Excels
+            for area_nombre, sheet_id in IDS_POR_AREA.items():
+                try:
+                    ss = cliente.open_by_key(sheet_id)
+                    try:
+                        hoja_area = ss.worksheet("Reportes")
+                    except:
+                        hoja_area = ss.get_worksheet(0)
+                    
+                    # Traemos los datos y los convertimos en DataFrame
+                    registros = hoja_area.get_all_records()
+                    if registros:
+                        df_temp = pd.DataFrame(registros)
+                        todos_los_datos.append(df_temp)
+                except Exception as e:
+                    # Si un área está vacía o falla, pasamos a la siguiente
+                    continue
 
-            for area_n, s_id in IDS_POR_AREA.items():
-                if norm(area_n) == norm(area_raw):
-                    sheet_id = s_id
-                    break
-
-            if sheet_id:
-                ss = cliente.open_by_key(sheet_id)
-                hoja = ss.get_worksheet(0)
-                registros = hoja.get_all_records()
-                
-                if registros:
-                    # FORZAMOS A QUE SEA UN DATAFRAME
-                    df_res = pd.DataFrame(registros)
-                    df_res.columns = [str(c).strip() for c in df_res.columns]
-
-                    # --- DETECCIÓN DINÁMICA DE COLUMNAS ---
-                    def encontrar_col(lista_cols, palabra):
-                        for c in lista_cols:
-                            if palabra.upper() in c.upper(): return c
-                        return None
-
-                    c_nom = encontrar_col(df_res.columns, "COLABORADOR")
-                    c_est = encontrar_col(df_res.columns, "ESTADO")
-                    c_id  = encontrar_col(df_res.columns, "ID")
-                    c_area = encontrar_col(df_res.columns, "AREA")
-
-                    if c_nom and c_est:
-                        # Limpieza de datos vacíos
-                        df_res = df_res[df_res[c_nom].astype(str).str.strip() != ""]
-                        
-                        # AGRUPACIÓN CORREGIDA (Evita el error de 'list')
-                        df_st = df_res.groupby([c_nom, c_area if c_area else c_nom]).agg(
-                            Total_RI=(c_id if c_id else c_nom, 'count'),
-                            RI_Respondidas=(c_est, lambda x: (x.astype(str).str.contains("Resuelto", case=False)).sum())
-                        ).reset_index()
-
-                        # Renombrar para que se vea bien
-                        df_st.columns = ["Colaborador", "Cargo/Área", "Total RI", "RI Respondidas"]
-                        df_st = df_st.sort_values(by="Total RI", ascending=False)
-
-                        # Mostrar Tabla con estilos
-                        def color_row(row):
-                            if row["Total RI"] >= 3:
-                                return ['background-color: #ffe6e6; color: #990000; font-weight: bold'] * len(row)
-                            return [''] * len(row)
-
-                        st.dataframe(df_st.style.apply(color_row, axis=1), use_container_width=True)
-                        
-                        # Alertas
-                        for _, row in df_st[df_st["Total RI"] >= 3].iterrows():
-                            st.error(f"🚨 **ALERTA LEGAL:** {row['Colaborador']} tiene {row['Total RI']} reportes. Emitir Memorándum.")
-                    else:
-                        st.warning(f"⚠️ El Excel de {area_raw} no tiene las columnas esperadas (Colaborador, Estado).")
-                else:
-                    st.info("No hay reportes registrados en esta área aún.")
+            if todos_los_datos:
+                df_reportes = pd.concat(todos_los_datos, ignore_index=True)
             else:
-                st.warning(f"Área '{area_raw}' no vinculada en el sistema.")
+                df_reportes = pd.DataFrame()
 
         except Exception as e:
-            st.error(f"Error al procesar estadísticas: {e}")
+            st.error(f"Error al recopilar estadísticas: {e}")
+            df_reportes = pd.DataFrame()
+
+        # 2. PROCESAMIENTO DE LOS DATOS RECOPILADOS
+        # IMPORTANTE: Verifica que los nombres de columnas en tus Excels sean EXACTAMENTE estos
+        col_nombre = "Colaborador Responsable"
+        col_area = "Área Operativa"
+        col_id = "ID Reporte"
+        col_estado = "Estado"
+
+        if not df_reportes.empty and col_nombre in df_reportes.columns:
+            # Limpiamos filas vacías y la fila de títulos que se pudo colar
+            df_reportes = df_reportes[df_reportes[col_nombre].astype(str).str.strip() != ""]
+            # Filtramos para que no cuente la fila de ejemplo/títulos si existe
+            df_reportes = df_reportes[df_reportes[col_nombre] != "Colaborador Responsable"]
+
+            # Agrupamos
+            df_st = df_reportes.groupby([col_nombre, col_area]).apply(
+                lambda x: pd.Series({
+                    "Total RI": x[col_id].count(),
+                    "RI Respondidas": (x[col_estado] == "Resuelto").sum()
+                })
+            ).reset_index()
+            
+            df_st.rename(columns={col_nombre: "Colaborador", col_area: "Cargo"}, inplace=True)
+            df_st = df_st.sort_values(by="Total RI", ascending=False)
+
+            # Aplicar color y mostrar
+            def color_row(row):
+                return ['background-color: #ffe6e6; color: #990000; font-weight: bold'] * len(row) if row["Total RI"] >= 3 \
+                    else ['background-color: #f0fdf4; color: #333'] * len(row)
+
+            st.dataframe(df_st.style.apply(color_row, axis=1), use_container_width=True)
+            
+            # Alertas Legales
+            criticos = df_st[df_st["Total RI"] >= 3]
+            for i, row in criticos.iterrows():
+                st.markdown(f'<div class="memo-alert">🚨 ALERTA LEGAL<br>El colaborador {row["Colaborador"]} acumula {row["Total RI"]} reportes.<br>SE PROCEDERÁ CON LA EMISIÓN DE UN MEMORÁNDUM.</div>', unsafe_allow_html=True)
+        else:
+            st.info("No se encontraron reportes en los archivos de las áreas.")
 
 st.markdown("<div class='bj-footer'>Batalla de Junin S.A.C. © 2026</div>", unsafe_allow_html=True)
