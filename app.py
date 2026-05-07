@@ -630,76 +630,82 @@ else:
                         st.error("❌ Descripción muy corta (mínimo 20 caracteres).")
 
     with t_stats:
+        st.markdown('<div class="form-header-box"><h4>Panel de Estadísticas por Área</h4></div>', unsafe_allow_html=True)
         try:
             creds = get_google_credentials()
             cliente = gspread.authorize(creds)
             
-            todos_los_datos = []
-            
-            # 1. BARRIDO DE TODAS LAS ÁREAS
-            # Recorremos cada ID del diccionario para traer la info de todos los Excels
-            for area_nombre, sheet_id in IDS_POR_AREA.items():
-                try:
-                    ss = cliente.open_by_key(sheet_id)
-                    try:
-                        hoja_area = ss.worksheet("Reportes")
-                    except:
-                        hoja_area = ss.get_worksheet(0)
-                    
-                    # Traemos los datos y los convertimos en DataFrame
-                    registros = hoja_area.get_all_records()
-                    if registros:
-                        df_temp = pd.DataFrame(registros)
-                        todos_los_datos.append(df_temp)
-                except Exception as e:
-                    # Si un área está vacía o falla, pasamos a la siguiente
-                    continue
+            # 1. Obtener y Normalizar el área del Jefe logueado
+            import unicodedata
+            def limpiar_texto(t):
+                if not t: return ""
+                return ''.join(c for c in unicodedata.normalize('NFD', str(t)) 
+                               if unicodedata.category(c) != 'Mn').upper().strip()
 
-            if todos_los_datos:
-                df_reportes = pd.concat(todos_los_datos, ignore_index=True)
+            jefe_actual = st.session_state.user_data
+            area_buscada = limpiar_texto(jefe_actual['ÁREA'])
+            
+            st.info(f"📊 Mostrando reportes para el área: **{jefe_actual['ÁREA']}**")
+
+            # 2. Buscar el ID del Sheet en tu diccionario IDS_POR_AREA
+            sheet_id = None
+            for nombre_area_dict, id_fijo in IDS_POR_AREA.items():
+                if limpiar_texto(nombre_area_dict) == area_buscada:
+                    sheet_id = id_fijo
+                    break
+
+            if sheet_id:
+                ss = cliente.open_by_key(sheet_id)
+                hoja = ss.get_worksheet(0)
+                datos_raw = hoja.get_all_records()
+                
+                if datos_raw:
+                    # CONVERSIÓN CRÍTICA: Forzamos DataFrame desde el inicio
+                    df_stats = pd.DataFrame(datos_raw)
+                    # Limpiamos los nombres de las columnas (quita espacios y tildes en los encabezados)
+                    df_stats.columns = [limpiar_texto(c) for c in df_stats.columns]
+
+                    # 3. IDENTIFICAR COLUMNAS POR PALABRAS CLAVE (No por nombre exacto)
+                    def buscar_col(lista, palabra):
+                        return next((c for c in lista if palabra in c), None)
+
+                    c_colab = buscar_col(df_stats.columns, "COLABORADOR")
+                    c_estado = buscar_col(df_stats.columns, "ESTADO")
+                    c_id = buscar_col(df_stats.columns, "ID")
+                    c_area = buscar_col(df_stats.columns, "AREA")
+
+                    if c_colab and c_estado:
+                        # Limpiar filas donde el colaborador esté vacío
+                        df_stats = df_stats[df_stats[c_colab].astype(str).str.strip() != ""]
+                        
+                        # 4. AGRUPACIÓN SEGURA (Usando .agg para evitar errores de listas)
+                        resumen = df_stats.groupby([c_colab, c_area if c_area else c_colab]).agg(
+                            Total_RI=(c_id if c_id else c_colab, 'count'),
+                            Resueltos=(c_estado, lambda x: x.astype(str).str.upper().str.contains("RESUELTO").sum())
+                        ).reset_index()
+
+                        # Renombrar columnas para la vista del usuario
+                        resumen.columns = ["Colaborador", "Área/Cargo", "Total RI", "RI Respondidas"]
+                        resumen = resumen.sort_values(by="Total RI", ascending=False)
+
+                        # 5. APLICAR ESTILOS Y MOSTRAR
+                        def resaltar_criticos(s):
+                            is_critico = s["Total RI"] >= 3
+                            return ['background-color: #ffe6e6; color: #990000; font-weight: bold' if is_critico else '' for _ in s]
+
+                        st.dataframe(resumen.style.apply(resaltar_criticos, axis=1), use_container_width=True)
+
+                        # Alertas Legales
+                        for _, fila in resumen[resumen["Total RI"] >= 3].iterrows():
+                            st.error(f"🚨 **MEMORÁNDUM REQUERIDO:** {fila['Colaborador']} alcanzó {fila['Total RI']} incidencias.")
+                    else:
+                        st.warning(f"⚠️ El archivo de {jefe_actual['ÁREA']} no tiene las columnas 'COLABORADOR' o 'ESTADO'.")
+                else:
+                    st.info("Aún no hay reportes registrados en esta área.")
             else:
-                df_reportes = pd.DataFrame()
+                st.error(f"❌ Error de Configuración: El área '{jefe_actual['ÁREA']}' no se encontró en la lista de IDs del sistema.")
 
         except Exception as e:
-            st.error(f"Error al recopilar estadísticas: {e}")
-            df_reportes = pd.DataFrame()
-
-        # 2. PROCESAMIENTO DE LOS DATOS RECOPILADOS
-        # IMPORTANTE: Verifica que los nombres de columnas en tus Excels sean EXACTAMENTE estos
-        col_nombre = "Colaborador Responsable"
-        col_area = "Área Operativa"
-        col_id = "ID Reporte"
-        col_estado = "Estado"
-
-        if not df_reportes.empty and col_nombre in df_reportes.columns:
-            # Limpiamos filas vacías y la fila de títulos que se pudo colar
-            df_reportes = df_reportes[df_reportes[col_nombre].astype(str).str.strip() != ""]
-            # Filtramos para que no cuente la fila de ejemplo/títulos si existe
-            df_reportes = df_reportes[df_reportes[col_nombre] != "Colaborador Responsable"]
-
-            # Agrupamos
-            df_st = df_reportes.groupby([col_nombre, col_area]).apply(
-                lambda x: pd.Series({
-                    "Total RI": x[col_id].count(),
-                    "RI Respondidas": (x[col_estado] == "Resuelto").sum()
-                })
-            ).reset_index()
-            
-            df_st.rename(columns={col_nombre: "Colaborador", col_area: "Cargo"}, inplace=True)
-            df_st = df_st.sort_values(by="Total RI", ascending=False)
-
-            # Aplicar color y mostrar
-            def color_row(row):
-                return ['background-color: #ffe6e6; color: #990000; font-weight: bold'] * len(row) if row["Total RI"] >= 3 \
-                    else ['background-color: #f0fdf4; color: #333'] * len(row)
-
-            st.dataframe(df_st.style.apply(color_row, axis=1), use_container_width=True)
-            
-            # Alertas Legales
-            criticos = df_st[df_st["Total RI"] >= 3]
-            for i, row in criticos.iterrows():
-                st.markdown(f'<div class="memo-alert">🚨 ALERTA LEGAL<br>El colaborador {row["Colaborador"]} acumula {row["Total RI"]} reportes.<br>SE PROCEDERÁ CON LA EMISIÓN DE UN MEMORÁNDUM.</div>', unsafe_allow_html=True)
-        else:
-            st.info("No se encontraron reportes en los archivos de las áreas.")
+            st.error(f"Error técnico al cargar estadísticas: {str(e)}")
 
 st.markdown("<div class='bj-footer'>Batalla de Junin S.A.C. © 2026</div>", unsafe_allow_html=True)
