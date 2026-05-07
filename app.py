@@ -430,13 +430,36 @@ if ro_id:
     elif df.iloc[0]['estado'] == 'Resuelto':
         rep = df.iloc[0]
         st.success("✅ Reporte Cerrado Exitosamente.")
+        
+        # 1. IDENTIFICAR AL JEFE DEL ÁREA DEL COLABORADOR
+        area_del_reportado = rep['empleado_area']
+        
+        try:
+            # Buscamos en el DataFrame de empleados al Jefe de esa área
+            info_jefe = df_empleados[
+                (df_empleados['ÁREA'] == area_del_reportado) & 
+                (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe')
+            ].iloc[0]
+            
+            correo_jefe = info_jefe['CORREO']
+            nombre_jefe = info_jefe['NOMBRE']
+        except:
+            # Si no hay jefe configurado, enviamos al correo del colaborador como respaldo
+            correo_jefe = "reportedeincidenciasinternas@gmail.com" # O podrías dejarlo vacío
+            nombre_jefe = "Jefe de Área"
+
         pdf_path = generar_pdf_oficial(rep)
         with open(pdf_path, "rb") as f:
             st.download_button("📥 Descargar Reporte PDF (ISO BJ)", f, file_name=f"Reporte_BJ_{rep['id']}.pdf")
+        
+        # 2. CONFIGURAR EL CORREO DINÁMICO
         asunto_g = f"REPORTE DE INCIDENCIA FINALIZADO - #{ro_id} - {rep['empleado_nombre']}"
-        cuerpo_g = f"Hola Área de Gestión de Procesos,\n\nSe ha finalizado el análisis.\n\nAtentamente,\n{rep['empleado_nombre']}"
+        cuerpo_g = f"Hola {nombre_jefe},\n\nSe informa que el colaborador {rep['empleado_nombre']} ha finalizado el análisis de causa raíz para el reporte RI-{ro_id}.\n\nAtentamente,\nSistema de Gestión SGC"
+        
         col_g, _ = st.columns(2)
-        col_g.markdown(f'<a href="{link_gmail("reportedeincidenciasinternas@gmail.com", asunto_g, cuerpo_g)}" target="_blank" class="btn-gmail">📧 ENVIAR A GESTIÓN</a>', unsafe_allow_html=True)
+        # Aquí se reemplaza el correo estático por la variable 'correo_jefe'
+        col_g.markdown(f'<a href="{link_gmail(correo_jefe, asunto_g, cuerpo_g)}" target="_blank" class="btn-gmail">📧 NOTIFICAR A JEFE ({area_del_reportado})</a>', unsafe_allow_html=True)
+    
     else:
         rep = df.iloc[0]
         fecha_dt = pd.to_datetime(rep['fecha_emision'])
