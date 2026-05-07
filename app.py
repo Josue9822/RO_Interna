@@ -654,12 +654,11 @@ else:
                 registros = hoja.get_all_records()
                 
                 if registros:
+                    # FORZAMOS A QUE SEA UN DATAFRAME
                     df_res = pd.DataFrame(registros)
-                    # Limpiamos nombres de columnas de espacios raros
                     df_res.columns = [str(c).strip() for c in df_res.columns]
 
                     # --- DETECCIÓN DINÁMICA DE COLUMNAS ---
-                    # Esto evita el KeyError: Busca una columna que CONTENGA la palabra clave
                     def encontrar_col(lista_cols, palabra):
                         for c in lista_cols:
                             if palabra.upper() in c.upper(): return c
@@ -671,24 +670,38 @@ else:
                     c_area = encontrar_col(df_res.columns, "AREA")
 
                     if c_nom and c_est:
-                        # Agrupación segura
+                        # Limpieza de datos vacíos
                         df_res = df_res[df_res[c_nom].astype(str).str.strip() != ""]
-                        df_st = df_res.groupby([c_nom, c_area if c_area else c_nom]).apply(
-                            lambda x: pd.Series({
-                                "Total RI": x[c_id].count() if c_id else len(x),
-                                "RI Respondidas": (x[c_est].astype(str).str.contains("Resuelto", case=False)).sum()
-                            })
+                        
+                        # AGRUPACIÓN CORREGIDA (Evita el error de 'list')
+                        df_st = df_res.groupby([c_nom, c_area if c_area else c_nom]).agg(
+                            Total_RI=(c_id if c_id else c_nom, 'count'),
+                            RI_Respondidas=(c_est, lambda x: (x.astype(str).str.contains("Resuelto", case=False)).sum())
                         ).reset_index()
 
-                        st.dataframe(df_st, use_container_width=True)
+                        # Renombrar para que se vea bien
+                        df_st.columns = ["Colaborador", "Cargo/Área", "Total RI", "RI Respondidas"]
+                        df_st = df_st.sort_values(by="Total RI", ascending=False)
+
+                        # Mostrar Tabla con estilos
+                        def color_row(row):
+                            if row["Total RI"] >= 3:
+                                return ['background-color: #ffe6e6; color: #990000; font-weight: bold'] * len(row)
+                            return [''] * len(row)
+
+                        st.dataframe(df_st.style.apply(color_row, axis=1), use_container_width=True)
+                        
+                        # Alertas
+                        for _, row in df_st[df_st["Total RI"] >= 3].iterrows():
+                            st.error(f"🚨 **ALERTA LEGAL:** {row['Colaborador']} tiene {row['Total RI']} reportes. Emitir Memorándum.")
                     else:
-                        st.error(f"❌ El Excel de '{area_raw}' no tiene una columna llamada 'Colaborador' o 'Estado'.")
+                        st.warning(f"⚠️ El Excel de {area_raw} no tiene las columnas esperadas (Colaborador, Estado).")
                 else:
-                    st.info("No hay datos en esta hoja aún.")
+                    st.info("No hay reportes registrados en esta área aún.")
             else:
-                st.warning(f"Área {area_raw} no configurada en IDS_POR_AREA.")
+                st.warning(f"Área '{area_raw}' no vinculada en el sistema.")
 
         except Exception as e:
-            st.error(f"Hubo un problema al leer los datos: {e}")
+            st.error(f"Error al procesar estadísticas: {e}")
 
 st.markdown("<div class='bj-footer'>Batalla de Junin S.A.C. © 2026</div>", unsafe_allow_html=True)
