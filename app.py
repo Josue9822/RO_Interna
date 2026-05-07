@@ -153,35 +153,36 @@ def login_screen():
     if 'auth' not in st.session_state:
         st.session_state.auth = False
         st.session_state.user_role = None
+        st.session_state.user_data = None # Para guardar info del jefe logueado
 
     if not st.session_state.auth:
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             if os.path.exists(LOGO_PATH):
                 st.image(LOGO_PATH, use_container_width=True)
-            else:
-                st.markdown("<h1 style='text-align:center; color:#990000;'>BJ</h1>", unsafe_allow_html=True)
             st.markdown("<h3 style='text-align:center; color:#990000;'>CONTROL DE ACCESO</h3>", unsafe_allow_html=True)
+            
             with st.form("login_bj"):
-                u = st.text_input("Usuario")
-                p = st.text_input("Contraseña", type="password")
+                u = st.text_input("Correo Institucional (Usuario)")
+                p = st.text_input("WhatsApp (Contraseña)", type="password")
+                
                 if st.form_submit_button("INGRESAR AL SISTEMA"):
-                    # Credenciales desde secrets
-                    admin_user = st.secrets.get("LOGIN_ADMIN_USER", "admin_bj")
-                    admin_pass = st.secrets.get("LOGIN_ADMIN_PASS", "bj2026")
-                    staff_user = st.secrets.get("LOGIN_STAFF_USER", "staff_bj")
-                    staff_pass = st.secrets.get("LOGIN_STAFF_PASS", "staff2026")
+                    # Buscamos al usuario en el DataFrame de empleados
+                    # Usamos .strip() para evitar errores por espacios invisibles
+                    user_match = df_empleados[
+                        (df_empleados['CORREO'].str.strip() == u.strip()) & 
+                        (df_empleados['WHATSAPP'].str.strip() == p.strip())
+                    ]
 
-                    if u == admin_user and p == admin_pass:
+                    if not user_match.empty:
+                        datos = user_match.iloc[0]
                         st.session_state.auth = True
-                        st.session_state.user_role = "jefe"
-                        st.rerun()
-                    elif u == staff_user and p == staff_pass:
-                        st.session_state.auth = True
-                        st.session_state.user_role = "staff"
+                        # Si es Jefe, le damos su rol; si no, queda como staff
+                        st.session_state.user_role = "jefe" if datos['ROL'].strip().capitalize() == "Jefe" else "staff"
+                        st.session_state.user_data = datos # Guardamos toda su fila
                         st.rerun()
                     else:
-                        st.error("❌ Credenciales Inválidas")
+                        st.error("❌ Credenciales incorrectas o usuario no registrado.")
         st.stop()
 
 # --- 3. ESTILOS VISUALES ---
