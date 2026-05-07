@@ -548,6 +548,15 @@ if ro_id:
 else:
     login_screen()
 
+    if st.session_state.auth:
+        with st.sidebar:
+            st.markdown("Mi perfil")
+            st.write(f"**Jefe:** {st.session_state.user_data['NOMBRE']}")
+            if st.button("🔴 Cerrar Sesión"):
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                    st.rerun()
+
     # --- FASE 1: VISTA DEL JEFE (MODIFICADA) ---
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
@@ -570,7 +579,7 @@ else:
             area_jefe = jefe_actual['ÁREA']
 
             st.markdown(f'<div class="form-header-box"><h4>Generar Reporte - Área: {area_jefe}</h4></div>', unsafe_allow_html=True)
-            st.info(f"Sesión iniciada como Jefe: **{emisor}**")
+            st.info(f"Sesión iniciada como: **{emisor}**")
             
             # --- PREPARACIÓN DE DATOS ---
             df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
