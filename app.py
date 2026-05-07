@@ -548,15 +548,6 @@ if ro_id:
 else:
     login_screen()
 
-    if st.session_state.auth:
-        with st.sidebar:
-            st.markdown("Mi perfil")
-            st.write(f"**Jefe:** {st.session_state.user_data['NOMBRE']}")
-            if st.button("🔴 Cerrar Sesión"):
-                for key in list(st.session_state.keys()):
-                    del st.session_state[key]
-                    st.rerun()
-
     # --- FASE 1: VISTA DEL JEFE (MODIFICADA) ---
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
