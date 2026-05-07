@@ -633,83 +633,62 @@ else:
         try:
             creds = get_google_credentials()
             cliente = gspread.authorize(creds)
-            
-            # 1. Obtenemos el área del jefe y la normalizamos
             jefe_actual = st.session_state.user_data
             area_raw = str(jefe_actual['ÁREA']).strip().upper()
             
-            # Función interna para quitar tildes y evitar errores de coincidencia
-            import unicodedata
-            def normalizar(texto):
-                return ''.join(c for c in unicodedata.normalize('NFD', texto)
-                               if unicodedata.category(c) != 'Mn').upper()
-
-            area_jefe_norm = normalizar(area_raw)
-            
             st.markdown(f'<div class="form-header-box"><h4>Panel de Control - Área: {area_raw}</h4></div>', unsafe_allow_html=True)
             
-            todos_los_datos = []
-            
-            # 2. Buscamos el ID del Sheet normalizando también las llaves del diccionario
+            # --- LOCALIZAR EL SHEET ---
             sheet_id = None
-            for nombre_area_dict, id_fijo in IDS_POR_AREA.items():
-                if normalizar(nombre_area_dict) == area_jefe_norm:
-                    sheet_id = id_fijo
+            import unicodedata
+            def norm(t): return ''.join(c for c in unicodedata.normalize('NFD', str(t)) if unicodedata.category(c) != 'Mn').upper().strip()
+
+            for area_n, s_id in IDS_POR_AREA.items():
+                if norm(area_n) == norm(area_raw):
+                    sheet_id = s_id
                     break
 
             if sheet_id:
-                try:
-                    ss = cliente.open_by_key(sheet_id)
-                    hoja_area = ss.get_worksheet(0)
-                    registros = hoja_area.get_all_records()
-                    if registros:
-                        df_temp = pd.DataFrame(registros)
-                        todos_los_datos.append(df_temp)
-                except Exception as e:
-                    st.error(f"Error al conectar con el Google Sheet de tu área: {e}")
-            else:
-                st.warning(f"⚠️ El área '{area_raw}' no está vinculada a ningún ID en IDS_POR_AREA.")
-
-            if todos_los_datos:
-                df_reportes = pd.concat(todos_los_datos, ignore_index=True)
-                df_reportes.columns = [str(c).strip() for c in df_reportes.columns] # Limpiar espacios en columnas
+                ss = cliente.open_by_key(sheet_id)
+                hoja = ss.get_worksheet(0)
+                registros = hoja.get_all_records()
                 
-                col_nombre = "Colaborador Responsable"
-                col_area = "Área Operativa"
-                col_id = "ID Reporte"
-                col_estado = "Estado"
+                if registros:
+                    df_res = pd.DataFrame(registros)
+                    # Limpiamos nombres de columnas de espacios raros
+                    df_res.columns = [str(c).strip() for c in df_res.columns]
 
-                if col_nombre in df_reportes.columns:
-                    # Filtramos filas vacías
-                    df_reportes = df_reportes[df_reportes[col_nombre].astype(str).str.strip() != ""]
+                    # --- DETECCIÓN DINÁMICA DE COLUMNAS ---
+                    # Esto evita el KeyError: Busca una columna que CONTENGA la palabra clave
+                    def encontrar_col(lista_cols, palabra):
+                        for c in lista_cols:
+                            if palabra.upper() in c.upper(): return c
+                        return None
 
-                    # Agrupamos resultados
-                    df_st = df_reportes.groupby([col_nombre, col_area]).apply(
-                        lambda x: pd.Series({
-                            "Total RI": x[col_id].count(),
-                            "RI Respondidas": (x[col_estado].astype(str).str.contains("Resuelto", case=False)).sum()
-                        })
-                    ).reset_index()
-                    
-                    df_st.rename(columns={col_nombre: "Colaborador", col_area: "Cargo"}, inplace=True)
-                    df_st = df_st.sort_values(by="Total RI", ascending=False)
+                    c_nom = encontrar_col(df_res.columns, "COLABORADOR")
+                    c_est = encontrar_col(df_res.columns, "ESTADO")
+                    c_id  = encontrar_col(df_res.columns, "ID")
+                    c_area = encontrar_col(df_res.columns, "AREA")
 
-                    # Mostrar Tabla con estilos
-                    def color_row(row):
-                        return ['background-color: #ffe6e6; color: #990000; font-weight: bold'] * len(row) if row["Total RI"] >= 3 \
-                            else [''] * len(row)
+                    if c_nom and c_est:
+                        # Agrupación segura
+                        df_res = df_res[df_res[c_nom].astype(str).str.strip() != ""]
+                        df_st = df_res.groupby([c_nom, c_area if c_area else c_nom]).apply(
+                            lambda x: pd.Series({
+                                "Total RI": x[c_id].count() if c_id else len(x),
+                                "RI Respondidas": (x[c_est].astype(str).str.contains("Resuelto", case=False)).sum()
+                            })
+                        ).reset_index()
 
-                    st.dataframe(df_st.style.apply(color_row, axis=1), use_container_width=True)
-                    
-                    # Alertas de Memorándum
-                    for _, row in df_st[df_st["Total RI"] >= 3].iterrows():
-                        st.error(f"🚨 **ALERTA:** {row['Colaborador']} tiene {row['Total RI']} reportes. Emitir Memorándum.")
+                        st.dataframe(df_st, use_container_width=True)
+                    else:
+                        st.error(f"❌ El Excel de '{area_raw}' no tiene una columna llamada 'Colaborador' o 'Estado'.")
                 else:
-                    st.info("El archivo de Excel existe, pero no tiene el formato de columnas correcto.")
+                    st.info("No hay datos en esta hoja aún.")
             else:
-                st.info(f"No se encontraron registros de incidencias para el área {area_raw}.")
+                st.warning(f"Área {area_raw} no configurada en IDS_POR_AREA.")
 
         except Exception as e:
-            st.error(f"Error técnico en estadísticas: {e}")
+            st.error(f"Hubo un problema al leer los datos: {e}")
 
 st.markdown("<div class='bj-footer'>Batalla de Junin S.A.C. © 2026</div>", unsafe_allow_html=True)
