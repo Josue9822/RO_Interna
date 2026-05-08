@@ -472,7 +472,7 @@ if ro_id:
             <p><strong>Emitido por:</strong> {rep['emisor']}</p>
             <p><strong>Fecha: {fecha_display}</strong></p>
             <div style="background-color: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 15px; border: 1px solid #ffeeba;">
-                <small style="color: #856404; font-weight: bold;">Estimado colaborador: Es obligatorio completar el Diagrama 6M y los 5 Porqués para cerrar el caso.</small>
+                <small style="color: #856404; font-weight: bold;">Estimado colaborador: Es obligatorio completar el Diagrama 6M y minimo 3 Porqués para cerrar el caso.</small>
             </div>
         </div>
         """, unsafe_allow_html=True)
