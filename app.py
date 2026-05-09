@@ -506,10 +506,10 @@ if ro_id:
                     p1 = st.text_area("P1. ¿Por qué ocurrió el problema?", key=f"p1_{key}", placeholder="Causa directa...", height=100)
                     p2 = st.text_area("P2. ¿Por qué ocurrió lo descrito en el punto 1?", key=f"p2_{key}", height=100)
                     p3 = st.text_area("P3. ¿Por qué ocurrió lo descrito en el punto 2?", key=f"p3_{key}", height=100)
-                    p4 = st.text_area("P4. ¿Por qué ocurrió lo descrito en el punto 3?", key=f"p4_{key}", height=100)
+                    #p4 = st.text_area("P4. ¿Por qué ocurrió lo descrito en el punto 3?", key=f"p4_{key}", height=100)
                     st.markdown("<div style='color:#990000; font-weight:bold; font-size:12px;'>🔻 POSIBLE CAUSA RAÍZ</div>", unsafe_allow_html=True)
-                    p5 = st.text_area("P5. ¿Por qué? (Causa Raíz)", key=f"p5_{key}", placeholder="Defina raíz...", height=100)
-                return {"desc": desc, "w": f"{p1}|{p2}|{p3}|{p4}|{p5}"}
+                    p5 = st.text_area("P4. ¿Por qué? (Causa Raíz)", key=f"p5_{key}", placeholder="Defina raíz...", height=100)
+                return {"desc": desc, "w": f"{p1}|{p2}|{p3}|{p5}"}
             return None
 
         m1 = m_unified_selector("Mano de Obra", "¿Fatiga, capacitación, error humano?", "mo")
