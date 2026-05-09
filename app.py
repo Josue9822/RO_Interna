@@ -427,9 +427,17 @@ if ro_id:
 
     if df.empty:
         st.error("Reporte no encontrado.")
-    elif df.iloc[0]['estado'] == 'Resuelto':
+    else:
         rep = df.iloc[0]
-        st.success("✅ Reporte Cerrado Exitosamente.")
+
+        fecha_emision = pd.to_datetime(rep['fecha_emision']).replace(tzinfo=ZoneInfo("America/Lima"))
+        ahora = datetime.now(ZoneInfo("America/lima"))
+        diferencia = ahora - fecha_emision
+
+        if rep['estado'] != 'Resuelto' and diferencia >= 2:
+            st.error(f"⚠️ **ENLACE CADUCADO:** El plazo de 48 horas para responder este reporte ha vencido (Emitido el: {fecha_emision.strftime('%d/%m/%Y')}).")
+            st.warning("Por favor, coordine con su Jefe de Area para la emision de una nueva papeleta de incidencia")
+            st.stop
         
         # 1. IDENTIFICAR AL JEFE DEL ÁREA DEL COLABORADOR
         area_del_reportado = rep['empleado_area']
