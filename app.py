@@ -463,8 +463,17 @@ if ro_id:
     # 3. SI ESTÁ PENDIENTE: MOSTRAR FORMULARIO
     else:
         rep = df.iloc[0]
-        fecha_dt = pd.to_datetime(rep['fecha_emision'])
-        fecha_display = fecha_dt.strftime("%Y-%m-%d Hora: %H:%M")
+        fecha_emision = pd.to_datetime(rep['fecha_emision']).replace(tzinfo=ZoneInfo("America/Lima"))
+        fecha_actual = datetime.now(ZoneInfo("America/Lima"))
+        diferencia = fecha_actual - fecha_emision
+
+        # Si han pasado más de 3 días (72 horas)
+        if diferencia.days >= 3:
+            st.error(f"⚠️ **ACCESO BLOQUEADO:** El plazo para responder este reporte (3 días) ha vencido.")
+            st.warning(f"Este reporte fue emitido el {fecha_emision.strftime('%d/%m/%Y %H:%M')}. Por favor, comuníquese con su jefe directo para regularizar su situación.")
+            st.stop() # Detiene la ejecución para que no vea el formulario
+
+        fecha_display = fecha_emision.strftime("%Y-%m-%d Hora: %H:%M")
         
         st.markdown(f"""
         <div class="bj-report-box">
