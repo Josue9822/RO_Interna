@@ -467,12 +467,12 @@ if ro_id:
         col_g, _ = st.columns(2)
         # Aquí se reemplaza el correo estático por la variable 'correo_jefe'
         col_g.markdown(f'<a href="{link_gmail(correo_jefe, asunto_g, cuerpo_g)}" target="_blank" class="btn-gmail">📧 NOTIFICAR A JEFE ({area_del_reportado})</a>', unsafe_allow_html=True)
-    
+   
+    # 3. SI ESTÁ PENDIENTE: MOSTRAR FORMULARIO
     else:
-        rep = df.iloc[0]
         fecha_dt = pd.to_datetime(rep['fecha_emision'])
         fecha_display = fecha_dt.strftime("%Y-%m-%d Hora: %H:%M")
-
+        
         st.markdown(f"""
         <div class="bj-report-box">
             <h3 style="margin-top:0;">⚠️ REPORTE DE INCIDENCIA #{ro_id}</h3>
