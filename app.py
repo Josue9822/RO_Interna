@@ -685,7 +685,7 @@ else:
             /* Avatar con Inicial */
             .user-avatar {
                 background-color: #FFFFFF;
-                color: #990000;
+                color: black;
                 width: 50px;
                 height: 50px;
                 line-height: 50px;
