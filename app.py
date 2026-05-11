@@ -468,7 +468,7 @@ if ro_id:
         diferencia = fecha_actual - fecha_emision
 
         # Si han pasado más de 3 días (72 horas)
-        if diferencia.days >= 0:
+        if diferencia.days >= 3:
             st.error(f"⚠️ **ACCESO BLOQUEADO:** El plazo para responder este reporte (3 días) ha vencido.")
             st.warning(f"Este reporte fue emitido el {fecha_emision.strftime('%d/%m/%Y %H:%M')}. Por favor, comuníquese con su jefe directo para regularizar su situación.")
             st.stop() # Detiene la ejecución para que no vea el formulario
