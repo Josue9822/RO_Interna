@@ -724,7 +724,7 @@ else:
             rol_emisor = str(jefe_actual.get('ROL', '')).strip().capitalize()
 
             st.markdown(f'<div class="form-header-box"><h4>Generar Reporte - Área: {area_jefe}</h4></div>', unsafe_allow_html=True)
-            st.info(f"Sesión iniciada como: **{emisor}** ({rol_emisor})")
+            st.info(f"Sesión iniciada como: **{emisor}**")
 
             # --- PREPARACIÓN DE DATOS ---
             df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
