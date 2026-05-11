@@ -752,11 +752,13 @@ else:
         inicial = primer_nombre[0].upper()
 
         st.markdown(f"""
-            <div class="sidebar-user-box">
+            <div class="sidebar-user-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                 <div class="user-avatar">{inicial}</div>
-                <div class="user-name">{nombre_completo}</div>
+                <div class="user-name" style="margin-top: 10px;">{nombre_completo}</div>
                 <div class="user-area">{user_data['ÁREA']}</div>
-                <div class="status-tag">● {st.session_state.user_role.upper()}</div>
+                <div style="margin-top: 8px;">
+                    <span class="status-tag">● {st.session_state.user_role.upper()}</span>
+                </div>
             </div>
         """, unsafe_allow_html=True)
 
