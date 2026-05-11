@@ -720,19 +720,6 @@ else:
                 box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             }
             
-            .user-name {
-                color: #ffffff;
-                font-weight: 700;
-                font-size: 16px;
-                margin-bottom: 5px;
-            }
-            
-            .user-area {
-                color: #a0aec0;
-                font-size: 13px;
-                margin-bottom: 15px;
-            }
-
             .status-tag {
                 background-color: rgba(72, 187, 120, 0.2);
                 color: #68d391;
@@ -774,8 +761,8 @@ else:
         st.markdown(f"""
             <div class="sidebar-user-box">
                 <div class="user-avatar">{inicial}</div>
-                <div style="font-weight: bold; color: #333; font-size: 14px;">{nombre_completo}</div>
-                <div style="color: #666; font-size: 12px;">{user_data['ÁREA']}</div>
+                <div style="font-weight: bold; color: #FFFFFF; font-size: 14px;">{nombre_completo}</div>
+                <div style="color: #FFFFFF; font-size: 12px;">{user_data['ÁREA']}</div>
                 <div class="status-tag">● {st.session_state.user_role.upper()}</div>
             </div>
         """, unsafe_allow_html=True)
