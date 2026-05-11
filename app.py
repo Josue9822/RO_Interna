@@ -685,15 +685,20 @@ else:
             /* Avatar con Inicial */
             .user-avatar {
                 background: #FFFFFF;
-                color: #990000;
-                width: 55px;
-                height: 55px;
-                line-height: 55px;
+                color: #990000 !important; /* Forzamos el color rojo de la letra */
+                width: 60px;
+                height: 60px;
+                
+                /* Centrado absoluto */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                
                 border-radius: 50%;
-                font-size: 22px;
+                font-size: 24px;
                 font-weight: 800;
                 margin: 0 auto 12px auto;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             }
 
             /* Textos del Usuario */
