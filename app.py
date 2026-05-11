@@ -191,6 +191,13 @@ def login_screen():
                             st.session_state.user_data = datos # Guardamos toda su fila
                             st.success("Bienvenido")
                             st.rerun()
+                        elif rol_detectado == "Subjefe":
+                            st.session_state.auth = True
+                            st.session_state.user_role = "subjefe" 
+                            st.session_state.user_data = datos # Guardamos toda su fila
+                            st.success("Bienvenido")
+                            st.rerun()
+                        
                         else:
                             st.error("🚫 Acceso Denegado: Esta aplicación es de uso exclusivo para Jefes de Área")
                     else:
