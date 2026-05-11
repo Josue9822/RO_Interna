@@ -201,78 +201,107 @@ def login_screen():
 # --- 3. ESTILOS VISUALES ---
 st.markdown("""
 <style>
-    /* Fondo general y contenedores */
+    /* Importación de fuente moderna */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
     .stApp { 
-        background-color: #fdfdfd; 
-        font-family: 'Inter', 'Segoe UI', sans-serif; 
+        background-color: #f4f7f9 !important; 
+        font-family: 'Inter', sans-serif; 
     }
-    
-    /* Encabezados Profesionales */
+
+    /* Encabezados con estilo corporativo */
     h1, h2, h3 { 
         color: #800000 !important; 
         font-weight: 800 !important;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.02em;
     }
-    
-    /* Caja de Reporte Estilo Card */
+
+    /* Tarjeta del Reporte (RI Box) */
     .bj-report-box { 
-        background: white; 
-        border: none; 
-        border-radius: 15px;
-        padding: 30px; 
-        margin-bottom: 25px; 
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        border-top: 5px solid #990000;
+        background: #ffffff; 
+        border-radius: 16px;
+        padding: 32px; 
+        margin-bottom: 24px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border-left: 8px solid #990000;
+        transition: transform 0.3s ease;
     }
     
-    /* Inputs y TextAreas */
-    .stTextArea textarea {
-        border-radius: 10px !important;
-        border: 1px solid #e0e0e0 !important;
-        transition: all 0.3s ease;
-    }
-    .stTextArea textarea:focus {
-        border-color: #990000 !important;
-        box-shadow: 0 0 0 2px rgba(153,0,0,0.1) !important;
+    .bj-report-box:hover {
+        transform: translateY(-2px);
     }
 
-    /* Botones de Acción Principal */
-    div.stButton > button { 
-        background: linear-gradient(135deg, #990000 0%, #660000 100%) !important;
-        color: white !important; 
-        border-radius: 12px !important; 
-        border: none !important; 
-        height: 50px !important;
-        font-size: 16px !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.4s ease !important;
+    /* Tabs estilizados como botones de estado */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: transparent;
     }
-    div.stButton > button:hover { 
-        transform: translateY(-2px) !important;
-        box-shadow: 0 5px 15px rgba(153,0,0,0.3) !important;
-    }
-
-    /* Tabs Personalizados */
-    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
+    
     .stTabs [data-baseweb="tab"] {
-        background-color: #f0f2f6;
-        border-radius: 10px 10px 0 0;
-        padding: 10px 20px;
-        color: #444;
+        height: 45px;
+        white-space: pre;
+        background-color: #ffffff;
+        border-radius: 8px 8px 0 0;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        font-weight: 600;
+        transition: all 0.2s ease;
     }
+
     .stTabs [aria-selected="true"] {
         background-color: #990000 !important;
-        color: white !important;
+        color: #ffffff !important;
+        border-color: #990000 !important;
+        box-shadow: 0 4px 12px rgba(153, 0, 0, 0.2);
     }
 
-    /* Alertas y Memos */
-    .alerta-roja { 
-        background-color: #fff5f5; 
-        color: #c53030; 
-        border-left: 5px solid #c53030;
-        padding: 20px;
-        border-radius: 8px;
+    /* Diseño de los inputs y áreas de texto */
+    .stTextArea textarea, .stTextInput input, .stSelectbox div[data-baseweb="select"] {
+        border-radius: 10px !important;
+        border: 1px solid #d1d5db !important;
+        background-color: #ffffff !important;
+    }
+
+    /* Botones de acción (Generar / Registrar) */
+    div.stButton > button { 
+        background: linear-gradient(135deg, #990000 0%, #700000 100%) !important;
+        color: #ffffff !important; 
+        border-radius: 12px !important; 
+        border: none !important; 
+        height: 52px !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        box-shadow: 0 4px 15px rgba(153, 0, 0, 0.25) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    div.stButton > button:hover { 
+        filter: brightness(1.1);
+        box-shadow: 0 6px 20px rgba(153, 0, 0, 0.35) !important;
+        transform: translateY(-1px);
+    }
+
+    /* Etiquetas de los formularios */
+    label { 
+        color: #1e293b !important; 
+        font-weight: 600 !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* Mensajes de Alerta (Memos / Errores) */
+    .alerta-roja, .stAlert {
+        border-radius: 12px !important;
+        border: none !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    /* Pie de página */
+    .bj-footer { 
+        font-size: 13px; 
+        color: #94a3b8; 
+        text-align: center;
+        padding: 40px 0;
+        border-top: 1px solid #e2e8f0;
     }
 </style>
 """, unsafe_allow_html=True)
