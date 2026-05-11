@@ -682,18 +682,12 @@ else:
 
     LOGO = os.path.join(ASSETS_DIR, "logo_new.jpg")
     with st.sidebar:
-        if os.path.exists(LOGO):
-            #Centrado
-            col1, col2, col3 = st.sidebar.columns([1, 2, 1])
-            with col2:
-                st.image(LOGO, width=100)
-        else:
-            st.markdown("""
-                <div style="text-align: center; padding: 10px 0;">
-                    <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">BATALLA DE JUNÍN</h2>
-                    <p style="color: #FFCDD2; font-size: 10px; margin: 0;">INGENIERÍA Y CONSTRUCCIÓN</p>
-                </div>
-            """, unsafe_allow_html=True)
+        st.markdown("""
+            <div style="text-align: center; padding: 10px 0;">
+                <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">BATALLA DE JUNÍN</h2>
+                <p style="color: #FFCDD2; font-size: 10px; margin: 0;">INGENIERÍA Y CONSTRUCCIÓN</p>
+            </div>
+        """, unsafe_allow_html=True)
 
         st.markdown("""
         <style>
