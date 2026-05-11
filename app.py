@@ -731,7 +731,6 @@ else:
 
             # 2. FILTRADO DINÁMICO JERÁRQUICO
             if rol_emisor == "Jefe":
-                # CASO JEFE (Ej. Kevin): Ve a todos en su área (Subjefes + Equipo)
                 # Solo se excluye a sí mismo para no auto-reportarse
                 df_filtrado = df_empleados[
                     (df_empleados['ÁREA'] == area_jefe) & 
