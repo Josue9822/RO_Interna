@@ -663,37 +663,79 @@ else:
     with st.sidebar:
         st.markdown("""
         <style>
+            /* Contenedor Principal del Sidebar */
             [data-testid="stSidebar"] {
-                background-color: #f8f9fa;
-                border-right: 2px solid #990000;
-                min-width: 250px !important;
-                max-width: 300px !important;
+                background: linear-gradient(180deg, #800000 0%, #4D0000 100%) !important;
+                border-right: 1px solid rgba(255,255,255,0.1);
+                min-width: 260px !important;
             }
+
+            /* Caja de Usuario - Estilo Cristal (Glassmorphism) */
             .sidebar-user-box {
-                background-color: white;
-                padding: 15px;
-                border-radius: 8px;
-                border: 1px solid #eee;
+                background: rgba(255, 255, 255, 0.08);
+                backdrop-filter: blur(10px);
+                padding: 20px;
+                border-radius: 15px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
                 text-align: center;
-                margin-bottom: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                margin: 10px 0 20px 0;
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             }
+
+            /* Avatar con Inicial */
             .user-avatar {
-                background-color: #990000;
-                color: white;
-                width: 50px;
-                height: 50px;
-                line-height: 50px;
+                background: #FFFFFF;
+                color: #990000;
+                width: 55px;
+                height: 55px;
+                line-height: 55px;
                 border-radius: 50%;
-                font-size: 20px;
-                font-weight: bold;
-                margin: 0 auto 8px auto;
+                font-size: 22px;
+                font-weight: 800;
+                margin: 0 auto 12px auto;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             }
-            .status-tag {
-                color: #2e7d32;
-                font-size: 10px;
-                font-weight: bold;
+
+            /* Textos del Usuario */
+            .user-name {
+                font-weight: 700;
+                color: #FFFFFF !important;
+                font-size: 15px;
+                margin-bottom: 2px;
+            }
+            .user-area {
+                color: #FFCDD2 !important;
+                font-size: 11px;
                 text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 10px;
+            }
+
+            /* Tag de Estado (Online) */
+            .status-tag {
+                background-color: rgba(46, 125, 50, 0.2);
+                color: #81C784 !important;
+                font-size: 9px;
+                font-weight: bold;
+                padding: 4px 10px;
+                border-radius: 20px;
+                display: inline-block;
+                border: 1px solid rgba(129, 199, 132, 0.3);
+            }
+
+            /* Personalización del Botón de Cerrar Sesión */
+            .stButton > button {
+                background-color: transparent !important;
+                color: #FFCDD2 !important;
+                border: 1px solid rgba(255,255,255,0.3) !important;
+                border-radius: 8px !important;
+                font-size: 12px !important;
+                transition: 0.3s !important;
+            }
+            .stButton > button:hover {
+                background-color: rgba(255,255,255,0.1) !important;
+                border-color: #FFFFFF !important;
+                color: #FFFFFF !important;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -712,13 +754,13 @@ else:
         st.markdown(f"""
             <div class="sidebar-user-box">
                 <div class="user-avatar">{inicial}</div>
-                <div style="font-weight: bold; color: #333; font-size: 14px;">{nombre_completo}</div>
-                <div style="color: #666; font-size: 12px;">{user_data['ÁREA']}</div>
+                <div class="user-name">{nombre_completo}</div>
+                <div class="user-area">{user_data['ÁREA']}</div>
                 <div class="status-tag">● {st.session_state.user_role.upper()}</div>
             </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("---")
+        st.markdown("<div style='margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);'></div>", unsafe_allow_html=True)
         
         # 3. Botón de Cerrar Sesión (Menos alto)
         if st.button("CERRAR SESIÓN", use_container_width=True):
@@ -729,9 +771,9 @@ else:
 
         # Pie de página pequeño
         st.markdown(f"""
-            <div style='text-align: center; margin-top: 30px; font-size: 10px; color: #bbb;'>
+            <div style='text-align: center; margin-top: 50px; font-size: 10px; color: rgba(255,255,255,0.4);'>
                 SGC BJ - 2026<br>
-                Batalla de Junín S.A.C.
+                <strong>Batalla de Junín S.A.C.</strong>
             </div>
         """, unsafe_allow_html=True)
 
