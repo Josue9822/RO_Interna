@@ -201,60 +201,25 @@ def login_screen():
 # --- 3. ESTILOS VISUALES ---
 st.markdown("""
 <style>
-    /* 1. Fondo de la página y tipografía */
-    .stApp {
-        background-color: #F4F7F9 !important; /* Gris azulado muy suave para eliminar el blanco total */
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    /* 2. Contenedor principal (La "hoja" de trabajo) */
-    .block-container {
-        background-color: #FFFFFF;
-        padding: 2.5rem !important;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra suave para dar profundidad */
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    /* 3. Sidebar con degradado BJ */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #990000 0%, #4D0000 100%) !important;
-        color: white !important;
-    }
-    
-    /* Ajustar textos del sidebar para que contrasten con el fondo oscuro */
-    [data-testid="stSidebar"] .stMarkdown p, [data-testid="stSidebar"] div {
-        color: #FFFFFF !important;
-    }
-
-    /* 4. Estilo de los Tabs (Pestañas) */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: #E9ECEF;
-        padding: 5px;
-        border-radius: 10px;
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 6px;
-        padding: 8px 16px;
-        transition: all 0.3s;
-    }
-
-    .stTabs [aria-selected="true"] {
-        background-color: #FFFFFF !important;
-        color: #990000 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    /* 5. Los boxes de reporte (Diagrama 6M) */
-    .bj-report-box {
-        background-color: #FDFDFD;
-        border: 1px solid #E0E0E0;
-        border-left: 6px solid #990000;
-        padding: 20px;
-        border-radius: 10px;
-    }
+    .stApp, .stMain, .main, .block-container, [data-testid="stHeader"] { background-color: #FFFFFF !important; }
+    :root { --bj-red: #990000; --bj-grey: #f0f2f6; }
+    .stApp { background-color: #FFFFFF; font-family: 'Segoe UI', sans-serif; }
+    h1, h2, h3, h4, h5, h6 { color: var(--bj-red) !important; font-weight: 700 !important; }
+    .stTabs [data-baseweb="tab"] { background-color: var(--bj-grey); color: #333; font-weight: 600; border: 1px solid #ddd; }
+    .stTabs [aria-selected="true"] { background-color: var(--bj-red) !important; color: white !important; border: none; }
+    .stSelectbox label, .stTextArea label, .stTextInput label, .stCheckbox label { color: #333 !important; font-size: 14px !important; font-weight: bold !important; }
+    div.stButton > button { background-color: var(--bj-red) !important; color: white !important; font-weight: bold !important; border-radius: 6px !important; border: none !important; width: 100% !important; transition: 0.2s !important; height: 45px !important;}
+    div.stButton > button:hover { background-color: #cc0000 !important; transform: scale(1.01) !important; }
+    .bj-report-box { background-color: #f9f9f9; border: 1px solid #ddd; border-left: 6px solid var(--bj-red); padding: 25px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .bj-report-box p { color: #333 !important; font-size: 15px; margin-bottom: 8px; }
+    .alerta-roja { background-color: #ffe6e6; color: #990000; border: 2px solid #ffcccc; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 15px; font-weight: 500; }
+    .memo-alert { background-color: #ffe6e6; border: 2px solid #cc0000; color: #990000; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 15px; font-size: 16px; }
+    .form-header-box { margin-bottom: 20px; border-bottom: 2px solid var(--bj-red); padding-bottom: 5px; }
+    .legend-box { background-color: #fff8e1; border: 1px dashed #ffb300; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; color: #5d4037; }
+    .btn-gmail { display: inline-block; background-color: #DB4437; color: white !important; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px; }
+    .btn-wa { display: inline-block; background-color: #25D366; color: white !important; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px; }
+    .bj-footer { font-size: 12px; color: #888; text-align: center; margin-top: 50px; border-top: 1px solid #eee; padding-top: 10px; }
+    .m-title { color: #990000 !important; font-weight: bold !important; font-size: 15px; margin-bottom: 5px; margin-top: 10px; }
 </style>
 """, unsafe_allow_html=True)
 
