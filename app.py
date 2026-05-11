@@ -706,12 +706,12 @@ else:
             /* Textos del Usuario (Oscuros para leer sobre blanco) */
             .user-name {
                 font-weight: 700;
-                color: #1A1A1A !important;
+                color: #000000;
                 font-size: 15px;
                 margin-bottom: 2px;
             }
             .user-area {
-                color: #666666 !important;
+                color: #000000 !important;
                 font-size: 11px;
                 text-transform: uppercase;
                 font-weight: 600;
