@@ -184,20 +184,14 @@ def login_screen():
                         datos = user_match.iloc[0]
                         rol_detectado = datos["ROL"].strip().capitalize()
 
-                        if rol_detectado == "Jefe":
-                            # Si es Jefe, le damos su rol; si no, queda como staff
+                        # --- VALIDACIÓN DE ROLES PERMITIDOS ---
+                        if rol_detectado in ["Jefe", "Subjefe"]:
                             st.session_state.auth = True
-                            st.session_state.user_role = "jefe" if datos['ROL'].strip().capitalize() == "Jefe" else "staff"
-                            st.session_state.user_data = datos # Guardamos toda su fila
-                            st.success("Bienvenido")
+                            # Guardamos el rol en minúsculas para consistencia en el código
+                            st.session_state.user_role = rol_detectado.lower()
+                            st.session_state.user_data = datos 
+                            st.success(f"Bienvenido(a) {datos['NOMBRE']}")
                             st.rerun()
-                        elif rol_detectado == "Subjefe":
-                            st.session_state.auth = True
-                            st.session_state.user_role = "subjefe" 
-                            st.session_state.user_data = datos # Guardamos toda su fila
-                            st.success("Bienvenido")
-                            st.rerun()
-                        
                         else:
                             st.error("🚫 Acceso Denegado: Esta aplicación es de uso exclusivo para Jefes de Área")
                     else:
@@ -685,7 +679,7 @@ else:
 
     st.markdown("<h2 style='text-align:center'>RI – Reporte de Incidencias Internas</h2>", unsafe_allow_html=True)
 
-    if st.session_state.user_role == "jefe":
+    if st.session_state.user_role in ["jefe", "subjefe"]:
         t_emitir, t_stats = st.tabs(["📄 PAPELETA RI", "📊 ESTADÍSTICAS"])
     else:
         t_stats = st.tabs(["📊 ESTADÍSTICAS"])[0]
