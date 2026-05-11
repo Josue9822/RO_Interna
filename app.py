@@ -588,82 +588,86 @@ else:
     login_screen()
 
     # --- SIDEBAR PERSONALIZADO ---
+    # --- SIDEBAR PROFESIONAL Y COMPACTO ---
     with st.sidebar:
-        # Estilos específicos para el Sidebar
         st.markdown("""
         <style>
             [data-testid="stSidebar"] {
                 background-color: #f8f9fa;
-                border-right: 3px solid #990000;
+                border-right: 2px solid #990000;
+                min-width: 250px !important;
+                max-width: 300px !important;
             }
             .sidebar-user-box {
                 background-color: white;
-                padding: 20px;
-                border-radius: 10px;
-                border: 1px solid #ddd;
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid #eee;
                 text-align: center;
-                margin-bottom: 20px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                margin-bottom: 10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
             .user-avatar {
                 background-color: #990000;
                 color: white;
-                width: 60px;
-                height: 60px;
-                line-height: 60px;
+                width: 50px;
+                height: 50px;
+                line-height: 50px;
                 border-radius: 50%;
-                font-size: 24px;
+                font-size: 20px;
                 font-weight: bold;
-                margin: 0 auto 10px auto;
+                margin: 0 auto 8px auto;
             }
             .status-tag {
-                background-color: #e8f5e9;
                 color: #2e7d32;
-                font-size: 11px;
-                padding: 2px 8px;
-                border-radius: 10px;
+                font-size: 10px;
                 font-weight: bold;
                 text-transform: uppercase;
             }
         </style>
         """, unsafe_allow_html=True)
 
-        # Contenido del Sidebar
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, use_container_width=True) [cite: 15]
+        # 1. Validación de Imagen para evitar el NameError
+        # Usamos el nombre de la variable tal cual la definiste al inicio de tu código
+        try:
+            if os.path.exists(LOGO_PATH):
+                st.image(LOGO_PATH, use_container_width=True)
+        except NameError:
+            st.warning("Logo no disponible")
+
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        st.markdown("---")
-        
-        # Caja de información del usuario
-        user_name = st.session_state.user_data['NOMBRE'] [cite: 83]
-        user_role = st.session_state.user_role.upper() [cite: 19]
-        user_area = st.session_state.user_data['ÁREA'] [cite: 84]
-        initial = user_name[0].upper()
+        # 2. Información del Usuario (Más compacta)
+        user_data = st.session_state.user_data
+        nombre_completo = str(user_data['NOMBRE']).strip()
+        primer_nombre = nombre_completo.split()[0]
+        inicial = primer_nombre[0].upper()
 
         st.markdown(f"""
             <div class="sidebar-user-box">
-                <div class="user-avatar">{initial}</div>
-                <div style="font-weight: bold; color: #333; font-size: 16px;">{user_name}</div>
-                <div style="color: #666; font-size: 13px; margin-bottom: 5px;">{user_area}</div>
-                <span class="status-tag">● En Línea - {user_role}</span>
+                <div class="user-avatar">{inicial}</div>
+                <div style="font-weight: bold; color: #333; font-size: 14px;">{nombre_completo}</div>
+                <div style="color: #666; font-size: 12px;">{user_data['ÁREA']}</div>
+                <div class="status-tag">● {st.session_state.user_role.upper()}</div>
             </div>
         """, unsafe_allow_html=True)
 
         st.markdown("---")
         
-        # Botón de cierre de sesión con estilo del sistema
-        if st.button("CERRAR SESIÓN SEGURA", use_container_width=True):
-            st.session_state.auth = False [cite: 14]
-            st.session_state.user_role = None [cite: 14]
-            st.session_state.user_data = None [cite: 14]
-            st.rerun() [cite: 20, 82]
+        # 3. Botón de Cerrar Sesión (Menos alto)
+        if st.button("CERRAR SESIÓN", use_container_width=True):
+            st.session_state.auth = False
+            st.session_state.user_role = None
+            st.session_state.user_data = None
+            st.rerun()
 
+        # Pie de página pequeño
         st.markdown(f"""
-            <div style='position: fixed; bottom: 20px; font-size: 10px; color: #999;'>
-                SGC - Versión 2026.05<br>
+            <div style='text-align: center; margin-top: 30px; font-size: 10px; color: #bbb;'>
+                SGC BJ - 2026<br>
                 Batalla de Junín S.A.C.
             </div>
-        """, unsafe_allow_html=True) [cite: 114]
+        """, unsafe_allow_html=True)
 
     # --- FASE 1: VISTA DEL JEFE (MODIFICADA) ---
     c1, c2, c3 = st.columns([1, 2, 1])
