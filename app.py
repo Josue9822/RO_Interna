@@ -444,34 +444,41 @@ if ro_id:
         rep = df.iloc[0]
         st.success("✅ Reporte Cerrado Exitosamente.")
         
-        # 1. IDENTIFICAR AL JEFE DEL ÁREA DEL COLABORADOR
+        # 1. IDENTIFICAR AL JEFE Y SUBJEFE DEL ÁREA DEL COLABORADOR
         area_del_reportado = rep['empleado_area']
-        
-        try:
-            # Buscamos en el DataFrame de empleados al Jefe de esa área
-            info_jefe = df_empleados[
-                (df_empleados['ÁREA'] == area_del_reportado) & 
-                (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Jefe')
-            ].iloc[0]
+        lista_correos_jefatura = []
+        nombres_jefatura = []
+
+        # Buscamos en el DataFrame de empleados a los responsables (Jefe y Subjefe)
+        responsables = df_empleados[
+            (df_empleados['ÁREA'] == area_del_reportado) & 
+            (df_empleados['ROL'].astype(str).str.strip().str.capitalize().isin(['Jefe', 'Subjefe']))
+        ]
+
+        if not responsables.empty:
+            for _, row in responsables.iterrows():
+                lista_correos_jefatura.append(row['CORREO'])
+                # Formato: Nombre (Rol) -> Ej: Kevin (Jefe)
+                nombres_jefatura.append(f"{row['NOMBRE']} ({row['ROL'].strip()})")
             
-            correo_jefe = info_jefe['CORREO']
-            nombre_jefe = info_jefe['NOMBRE']
-        except:
-            # Si no hay jefe configurado, enviamos al correo del colaborador como respaldo
-            correo_jefe = "reportedeincidenciasinternas@gmail.com" # O podrías dejarlo vacío
-            nombre_jefe = "Jefe de Área"
+            correo_destino = ",".join(lista_correos_jefatura)
+            texto_nombres = " y ".join(nombres_jefatura)
+        else:
+            # Respaldo si no se encuentra a nadie en el Excel
+            correo_destino = "reportedeincidenciasinternas@gmail.com"
+            texto_nombres = "Jefatura de Área"
 
         pdf_path = generar_pdf_oficial(rep)
         with open(pdf_path, "rb") as f:
             st.download_button("📥 Descargar Reporte PDF (ISO BJ)", f, file_name=f"Reporte_BJ_{rep['id']}.pdf")
         
-        # 2. CONFIGURAR EL CORREO DINÁMICO
+        # 2. CONFIGURAR EL CORREO DINÁMICO (A ambos si aplica)
         asunto_g = f"REPORTE DE INCIDENCIA FINALIZADO - #{ro_id} - {rep['empleado_nombre']}"
-        cuerpo_g = f"Hola {nombre_jefe},\n\nSe informa que el colaborador {rep['empleado_nombre']} ha finalizado el análisis de causa raíz para el reporte RI-{ro_id}.\n\nAtentamente,\nSistema de Gestión SGC"
+        cuerpo_g = f"Hola {texto_nombres},\n\nSe informa que el colaborador {rep['empleado_nombre']} ha finalizado el análisis de causa raíz para el reporte RI-{ro_id}.\n\nAtentamente,\nSistema de Gestión SGC"
         
         col_g, _ = st.columns(2)
-        # Aquí se reemplaza el correo estático por la variable 'correo_jefe'
-        col_g.markdown(f'<a href="{link_gmail(correo_jefe, asunto_g, cuerpo_g)}" target="_blank" class="btn-gmail">📧 NOTIFICAR A JEFE ({area_del_reportado})</a>', unsafe_allow_html=True)
+        # El botón ahora enviará a todos los correos encontrados (separados por coma)
+        col_g.markdown(f'<a href="{link_gmail(correo_destino, asunto_g, cuerpo_g)}" target="_blank" class="btn-gmail">📧 NOTIFICAR A JEFATURA ({area_del_reportado})</a>', unsafe_allow_html=True)
    
     # 3. SI ESTÁ PENDIENTE: MOSTRAR FORMULARIO
     else:
