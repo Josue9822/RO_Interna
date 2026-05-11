@@ -201,25 +201,79 @@ def login_screen():
 # --- 3. ESTILOS VISUALES ---
 st.markdown("""
 <style>
-    .stApp, .stMain, .main, .block-container, [data-testid="stHeader"] { background-color: #FFFFFF !important; }
-    :root { --bj-red: #990000; --bj-grey: #f0f2f6; }
-    .stApp { background-color: #FFFFFF; font-family: 'Segoe UI', sans-serif; }
-    h1, h2, h3, h4, h5, h6 { color: var(--bj-red) !important; font-weight: 700 !important; }
-    .stTabs [data-baseweb="tab"] { background-color: var(--bj-grey); color: #333; font-weight: 600; border: 1px solid #ddd; }
-    .stTabs [aria-selected="true"] { background-color: var(--bj-red) !important; color: white !important; border: none; }
-    .stSelectbox label, .stTextArea label, .stTextInput label, .stCheckbox label { color: #333 !important; font-size: 14px !important; font-weight: bold !important; }
-    div.stButton > button { background-color: var(--bj-red) !important; color: white !important; font-weight: bold !important; border-radius: 6px !important; border: none !important; width: 100% !important; transition: 0.2s !important; height: 45px !important;}
-    div.stButton > button:hover { background-color: #cc0000 !important; transform: scale(1.01) !important; }
-    .bj-report-box { background-color: #f9f9f9; border: 1px solid #ddd; border-left: 6px solid var(--bj-red); padding: 25px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .bj-report-box p { color: #333 !important; font-size: 15px; margin-bottom: 8px; }
-    .alerta-roja { background-color: #ffe6e6; color: #990000; border: 2px solid #ffcccc; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 15px; font-weight: 500; }
-    .memo-alert { background-color: #ffe6e6; border: 2px solid #cc0000; color: #990000; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 15px; font-size: 16px; }
-    .form-header-box { margin-bottom: 20px; border-bottom: 2px solid var(--bj-red); padding-bottom: 5px; }
-    .legend-box { background-color: #fff8e1; border: 1px dashed #ffb300; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; color: #5d4037; }
-    .btn-gmail { display: inline-block; background-color: #DB4437; color: white !important; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px; }
-    .btn-wa { display: inline-block; background-color: #25D366; color: white !important; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px; }
-    .bj-footer { font-size: 12px; color: #888; text-align: center; margin-top: 50px; border-top: 1px solid #eee; padding-top: 10px; }
-    .m-title { color: #990000 !important; font-weight: bold !important; font-size: 15px; margin-bottom: 5px; margin-top: 10px; }
+    /* Fondo general y contenedores */
+    .stApp { 
+        background-color: #fdfdfd; 
+        font-family: 'Inter', 'Segoe UI', sans-serif; 
+    }
+    
+    /* Encabezados Profesionales */
+    h1, h2, h3 { 
+        color: #800000 !important; 
+        font-weight: 800 !important;
+        letter-spacing: -0.5px;
+    }
+    
+    /* Caja de Reporte Estilo Card */
+    .bj-report-box { 
+        background: white; 
+        border: none; 
+        border-radius: 15px;
+        padding: 30px; 
+        margin-bottom: 25px; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border-top: 5px solid #990000;
+    }
+    
+    /* Inputs y TextAreas */
+    .stTextArea textarea {
+        border-radius: 10px !important;
+        border: 1px solid #e0e0e0 !important;
+        transition: all 0.3s ease;
+    }
+    .stTextArea textarea:focus {
+        border-color: #990000 !important;
+        box-shadow: 0 0 0 2px rgba(153,0,0,0.1) !important;
+    }
+
+    /* Botones de Acción Principal */
+    div.stButton > button { 
+        background: linear-gradient(135deg, #990000 0%, #660000 100%) !important;
+        color: white !important; 
+        border-radius: 12px !important; 
+        border: none !important; 
+        height: 50px !important;
+        font-size: 16px !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s ease !important;
+    }
+    div.stButton > button:hover { 
+        transform: translateY(-2px) !important;
+        box-shadow: 0 5px 15px rgba(153,0,0,0.3) !important;
+    }
+
+    /* Tabs Personalizados */
+    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #f0f2f6;
+        border-radius: 10px 10px 0 0;
+        padding: 10px 20px;
+        color: #444;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #990000 !important;
+        color: white !important;
+    }
+
+    /* Alertas y Memos */
+    .alerta-roja { 
+        background-color: #fff5f5; 
+        color: #c53030; 
+        border-left: 5px solid #c53030;
+        padding: 20px;
+        border-radius: 8px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
