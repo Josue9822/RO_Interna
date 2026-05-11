@@ -444,12 +444,13 @@ if ro_id:
         rep = df.iloc[0]
         st.success("✅ Reporte Cerrado Exitosamente.")
         
-        # 1. IDENTIFICAR AL JEFE Y SUBJEFE DEL ÁREA DEL COLABORADOR
+        # 1. IDENTIFICAR DESTINATARIOS (Para: y CC:)
         area_del_reportado = rep['empleado_area']
-        lista_correos_jefatura = []
-        nombres_jefatura = []
+        correo_para = ""
+        nombre_jefe_saludo = ""
+        lista_cc = []
 
-        # Buscamos en el DataFrame de empleados a los responsables (Jefe y Subjefe)
+        # Buscamos a los responsables en el DataFrame
         responsables = df_empleados[
             (df_empleados['ÁREA'] == area_del_reportado) & 
             (df_empleados['ROL'].astype(str).str.strip().str.capitalize().isin(['Jefe', 'Subjefe']))
@@ -457,28 +458,49 @@ if ro_id:
 
         if not responsables.empty:
             for _, row in responsables.iterrows():
-                lista_correos_jefatura.append(row['CORREO'])
-                # Formato: Nombre (Rol) -> Ej: Kevin (Jefe)
-                nombres_jefatura.append(f"{row['NOMBRE']} ({row['ROL'].strip()})")
+                rol_actual = str(row['ROL']).strip().capitalize()
+                
+                if rol_actual == "Jefe":
+                    correo_para = row['CORREO']
+                    nombre_jefe_saludo = row['NOMBRE']
+                elif rol_actual == "Subjefe":
+                    lista_cc.append(row['CORREO'])
             
-            correo_destino = ",".join(lista_correos_jefatura)
-            texto_nombres = " y ".join(nombres_jefatura)
+            # Si por alguna razón no se encontró a nadie con rol 'Jefe' específicamente
+            if not correo_para:
+                correo_para = responsables.iloc[0]['CORREO']
+                nombre_jefe_saludo = responsables.iloc[0]['NOMBRE']
         else:
-            # Respaldo si no se encuentra a nadie en el Excel
-            correo_destino = "reportedeincidenciasinternas@gmail.com"
-            texto_nombres = "Jefatura de Área"
+            correo_para = "reportedeincidenciasinternas@gmail.com"
+            nombre_jefe_saludo = "Jefe de Área"
 
+        # 2. AGREGAR OTROS CORREOS ADICIONALES AL CC
+        # Aquí puedes meter todos los correos extra que quieras (Gerencia, RRHH, etc.)
+        otros_correos_cc = ["gerencia@tuempresa.com", "rrhh@tuempresa.com"]
+        lista_cc.extend(otros_correos_cc)
+        
+        correos_cc_final = ",".join(lista_cc)
+
+        # 3. GENERACIÓN DE PDF
         pdf_path = generar_pdf_oficial(rep)
         with open(pdf_path, "rb") as f:
             st.download_button("📥 Descargar Reporte PDF (ISO BJ)", f, file_name=f"Reporte_BJ_{rep['id']}.pdf")
         
-        # 2. CONFIGURAR EL CORREO DINÁMICO (A ambos si aplica)
+        # 4. CONFIGURAR EL CORREO DINÁMICO
         asunto_g = f"REPORTE DE INCIDENCIA FINALIZADO - #{ro_id} - {rep['empleado_nombre']}"
-        cuerpo_g = f"Hola {texto_nombres},\n\nSe informa que el colaborador {rep['empleado_nombre']} ha finalizado el análisis de causa raíz para el reporte RI-{ro_id}.\n\nAtentamente,\nSistema de Gestión SGC"
+        cuerpo_g = f"Hola {nombre_jefe_saludo},\n\nSe informa que el colaborador {rep['empleado_nombre']} ha finalizado el análisis de causa raíz para el reporte RI-{ro_id}.\n\nAtentamente,\nSistema de Gestión SGC"
         
+        # Construcción manual del link para asegurar el soporte de CC
+        link_final_gmail = (
+            f"https://mail.google.com/mail/?view=cm&fs=1"
+            f"&to={urllib.parse.quote(correo_para)}"
+            f"&cc={urllib.parse.quote(correos_cc_final)}"
+            f"&su={urllib.parse.quote(asunto_g)}"
+            f"&body={urllib.parse.quote(cuerpo_g)}"
+        )
+
         col_g, _ = st.columns(2)
-        # El botón ahora enviará a todos los correos encontrados (separados por coma)
-        col_g.markdown(f'<a href="{link_gmail(correo_destino, asunto_g, cuerpo_g)}" target="_blank" class="btn-gmail">📧 NOTIFICAR A JEFATURA ({area_del_reportado})</a>', unsafe_allow_html=True)
+        col_g.markdown(f'<a href="{link_final_gmail}" target="_blank" class="btn-gmail">📧 NOTIFICAR A JEFATURA</a>', unsafe_allow_html=True)
    
     # 3. SI ESTÁ PENDIENTE: MOSTRAR FORMULARIO
     else:
