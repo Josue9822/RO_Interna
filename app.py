@@ -679,13 +679,21 @@ else:
 
     # --- SIDEBAR PERSONALIZADO ---
     # --- SIDEBAR PROFESIONAL Y COMPACTO ---
+
+    LOGO = os.path.join(ASSETS_DIR, "logo_new.jpg")
     with st.sidebar:
-        st.markdown("""
-            <div style="text-align: center; padding: 10px 0;">
-                <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">BATALLA DE JUNÍN</h2>
-                <p style="color: #FFCDD2; font-size: 10px; margin: 0;">INGENIERÍA Y CONSTRUCCIÓN</p>
-            </div>
-        """, unsafe_allow_html=True)
+        if os.path.exists(LOGO):
+            # Contenedor para centrar la imagen y darle aire
+            st.markdown('<div style="text-align: center; padding: 20px 0;">', unsafe_allow_html=True)
+            st.image(LOGO, width=180) # Puedes ajustar el ancho (width) según prefieras
+            st.markdown('</div>', unsafe_allow_html=True)
+        else:
+            st.markdown("""
+                <div style="text-align: center; padding: 10px 0;">
+                    <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">BATALLA DE JUNÍN</h2>
+                    <p style="color: #FFCDD2; font-size: 10px; margin: 0;">INGENIERÍA Y CONSTRUCCIÓN</p>
+                </div>
+            """, unsafe_allow_html=True)
 
         st.markdown("""
         <style>
