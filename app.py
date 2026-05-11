@@ -690,22 +690,40 @@ else:
             jefe_actual = st.session_state.user_data
             emisor = jefe_actual['NOMBRE']
             area_jefe = jefe_actual['ÁREA']
+            # Obtenemos el rol para saber si es Jefe (Kevin) o Subjefe (Angie)
+            rol_emisor = str(jefe_actual.get('ROL', '')).strip().capitalize()
 
             st.markdown(f'<div class="form-header-box"><h4>Generar Reporte - Área: {area_jefe}</h4></div>', unsafe_allow_html=True)
-            st.info(f"Sesión iniciada como: **{emisor}**")
-            
+            st.info(f"Sesión iniciada como: **{emisor}** ({rol_emisor})")
+
             # --- PREPARACIÓN DE DATOS ---
             df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
 
-            # 2. FILTRADO DINÁMICO: Solo integrantes del equipo de SU misma área
-            equipo = df_empleados[
-                (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo') & 
-                (df_empleados['ÁREA'] == area_jefe)
-            ]['NOMBRE'].tolist()
+            # 2. FILTRADO DINÁMICO JERÁRQUICO
+            if rol_emisor == "Jefe":
+                # CASO JEFE (Ej. Kevin): Ve a todos en su área (Subjefes + Equipo)
+                # Solo se excluye a sí mismo para no auto-reportarse
+                df_filtrado = df_empleados[
+                    (df_empleados['ÁREA'] == area_jefe) & 
+                    (df_empleados['NOMBRE'] != emisor)
+                ]
+                st.caption("🔍 Modo Jefe: Viendo Subjefes y Equipo operativo.")
+            elif rol_emisor == "Subjefe":
+                # CASO SUBJEFE (Ej. Angie): Solo ve al personal con rol 'Equipo' en su área
+                df_filtrado = df_empleados[
+                    (df_empleados['ÁREA'] == area_jefe) & 
+                    (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo')
+                ]
+                st.caption("📋 Modo Subjefe: Viendo solo personal operativo.")
+            else:
+                # Por seguridad, si no es ninguno, la lista queda vacía
+                df_filtrado = pd.DataFrame(columns=df_empleados.columns)
 
-            # Selector de receptor (solo su equipo)
-            receptor = st.selectbox("¿A quién se reporta? (Personal de su área)", equipo if equipo else ["Sin personal"])
+            # Convertimos el resultado a lista para el selectbox
+            equipo = df_filtrado['NOMBRE'].tolist()
 
+            # Selector de receptor
+            receptor = st.selectbox("¿A quién se reporta?", equipo if equipo else ["Sin personal"])
             # FORMULARIO PARA LA ACCIÓN DE GUARDAR
             with st.form("emision_final"):
                 desc = st.text_area("Descripción de la Incidencia:", height=120)
