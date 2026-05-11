@@ -708,14 +708,14 @@ else:
                     (df_empleados['ÁREA'] == area_jefe) & 
                     (df_empleados['NOMBRE'] != emisor)
                 ]
-                st.caption("🔍 Modo Jefe: Viendo Subjefes y Equipo operativo.")
+                st.caption("🔍 Visualizando: Equipo operativo")
             elif rol_emisor == "Subjefe":
                 # CASO SUBJEFE (Ej. Angie): Solo ve al personal con rol 'Equipo' en su área
                 df_filtrado = df_empleados[
                     (df_empleados['ÁREA'] == area_jefe) & 
                     (df_empleados['ROL'].astype(str).str.strip().str.capitalize() == 'Equipo')
                 ]
-                st.caption("📋 Modo Subjefe: Viendo solo personal operativo.")
+                st.caption("🔍 Visualizando: Equipo operativo")
             else:
                 # Por seguridad, si no es ninguno, la lista queda vacía
                 df_filtrado = pd.DataFrame(columns=df_empleados.columns)
