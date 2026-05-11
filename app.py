@@ -476,7 +476,7 @@ if ro_id:
 
         # 2. AGREGAR OTROS CORREOS ADICIONALES AL CC
         # Aquí puedes meter todos los correos extra que quieras (Gerencia, RRHH, etc.)
-        otros_correos_cc = ["gerencia@tuempresa.com", "rrhh@tuempresa.com"]
+        otros_correos_cc = ["asistproyectosadmi@batalladejunin.com", "gestioncalidad@batalladejunin.com"]
         lista_cc.extend(otros_correos_cc)
         
         correos_cc_final = ",".join(lista_cc)
