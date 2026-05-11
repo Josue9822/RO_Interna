@@ -201,83 +201,59 @@ def login_screen():
 # --- 3. ESTILOS VISUALES ---
 st.markdown("""
 <style>
-    /* Importación de tipografía moderna */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
-    html, body, [data-testid="stAppViewContainer"] {
-        font-family: 'Inter', sans-serif;
-        background-color: #F8F9FA;
+    /* 1. Fondo de la página y tipografía */
+    .stApp {
+        background-color: #F4F7F9 !important; /* Gris azulado muy suave para eliminar el blanco total */
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* Contenedores principales con bordes redondeados suaves */
-    .stMainBlockContainer {
-        background: white;
-        padding: 3rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        margin-top: 2rem;
-    }
-
-    /* Encabezados Profesionales */
-    h1, h2, h3 {
-        color: #1A1A1A !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.5px;
-    }
-
-    /* Botones con Gradiente y Efecto Elevación */
-    div.stButton > button {
-        background: linear-gradient(135deg, #990000 0%, #660000 100%) !important;
-        color: white !important;
-        border: none !important;
-        padding: 0.75rem 1.5rem !important;
-        border-radius: 10px !important;
-        font-weight: 600 !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 6px rgba(153, 0, 0, 0.2) !important;
-        width: 100% !important;
-    }
-
-    div.stButton > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 12px rgba(153, 0, 0, 0.3) !important;
-    }
-
-    /* Tarjetas de Reporte (Estilo Card) */
-    .bj-report-box {
-        background: #FFFFFF;
-        border: 1px solid #E0E0E0;
-        border-left: 5px solid #990000;
-        padding: 1.5rem;
+    /* 2. Contenedor principal (La "hoja" de trabajo) */
+    .block-container {
+        background-color: #FFFFFF;
+        padding: 2.5rem !important;
         border-radius: 12px;
-        margin-bottom: 20px;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.02);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra suave para dar profundidad */
+        margin-top: 2rem;
+        margin-bottom: 2rem;
     }
 
-    /* Inputs y Textareas más limpios */
-    .stTextArea textarea, .stTextInput input, .stSelectbox [data-baseweb="select"] {
-        border-radius: 8px !important;
-        border: 1px solid #DDE1E6 !important;
-        background-color: #FBFBFB !important;
+    /* 3. Sidebar con degradado BJ */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #990000 0%, #4D0000 100%) !important;
+        color: white !important;
+    }
+    
+    /* Ajustar textos del sidebar para que contrasten con el fondo oscuro */
+    [data-testid="stSidebar"] .stMarkdown p, [data-testid="stSidebar"] div {
+        color: #FFFFFF !important;
     }
 
-    /* Estilo de los Tabs */
+    /* 4. Estilo de los Tabs (Pestañas) */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        background-color: transparent;
+        background-color: #E9ECEF;
+        padding: 5px;
+        border-radius: 10px;
     }
 
     .stTabs [data-baseweb="tab"] {
-        height: 45px;
-        background-color: #EEE;
-        border-radius: 8px 8px 0 0;
-        padding: 0 20px;
-        color: #666;
+        border-radius: 6px;
+        padding: 8px 16px;
+        transition: all 0.3s;
     }
 
     .stTabs [aria-selected="true"] {
-        background-color: #990000 !important;
-        color: white !important;
+        background-color: #FFFFFF !important;
+        color: #990000 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* 5. Los boxes de reporte (Diagrama 6M) */
+    .bj-report-box {
+        background-color: #FDFDFD;
+        border: 1px solid #E0E0E0;
+        border-left: 6px solid #990000;
+        padding: 20px;
+        border-radius: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
