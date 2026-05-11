@@ -778,7 +778,7 @@ else:
 
         # Pie de página pequeño
         st.markdown(f"""
-            <div style='text-align: center; margin-top: 50px; font-size: 10px; color: rgba(255,255,255,0.4);'>
+            <div style='text-align: center; margin-top: 50px; font-size: 10px; color: #FFFFFF;'>
                 SGC BJ - 2026<br>
                 <strong>Batalla de Junín S.A.C.</strong>
             </div>
@@ -790,10 +790,10 @@ else:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=300)
         else: st.title("BATALLA DE JUNIN")
 
-    st.markdown("<h2 style='text-align:center'>RI – Reporte de Incidencias Internas</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center'>ROI – Reporte de Observaciones Internas</h2>", unsafe_allow_html=True)
 
     if st.session_state.user_role in ["jefe", "subjefe"]:
-        t_emitir, t_stats = st.tabs(["📄 PAPELETA RI", "📊 ESTADÍSTICAS"])
+        t_emitir, t_stats = st.tabs(["📄 PAPELETA ROI", "📊 ESTADÍSTICAS"])
     else:
         t_stats = st.tabs(["📊 ESTADÍSTICAS"])[0]
         t_emitir = None
