@@ -629,12 +629,7 @@ else:
 
         # 1. Validación de Imagen para evitar el NameError
         # Usamos el nombre de la variable tal cual la definiste al inicio de tu código
-        try:
-            if os.path.exists(LOGO_PATH):
-                st.image(LOGO_PATH, use_container_width=True)
-        except NameError:
-            st.warning("Logo no disponible")
-
+        
         st.markdown("<br>", unsafe_allow_html=True)
         
         # 2. Información del Usuario (Más compacta)
