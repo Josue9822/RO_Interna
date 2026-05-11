@@ -64,7 +64,7 @@ def logout():
     st.session_state.auth = False
     st.session_state.user_role = None
     st.session_state.user_data = None
-    st.rerun
+    st.rerun()
 
 # --- FUNCIONES DE GOOGLE SHEETS ---
 def guardar_en_sheets(fila: list, area_empleado):
@@ -593,7 +593,7 @@ else:
             st.session_state.auth = False
             st.session_state.user_role = None
             st.session_state.user_data = None
-            st.rerun
+            st.rerun()
 
     # --- FASE 1: VISTA DEL JEFE (MODIFICADA) ---
     c1, c2, c3 = st.columns([1, 2, 1])
