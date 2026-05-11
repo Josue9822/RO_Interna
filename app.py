@@ -689,37 +689,73 @@ else:
 
         st.markdown("""
         <style>
+            /* Contenedor del Sidebar */
             [data-testid="stSidebar"] {
-                background-color: #f8f9fa;
-                border-right: 2px solid #990000;
-                min-width: 250px !important;
-                max-width: 300px !important;
+                background-color: #1a1c23; /* Oscuro Elegante */
+                color: #ffffff;
             }
+            
+            /* Caja de Perfil de Usuario */
             .sidebar-user-box {
-                background-color: white;
-                padding: 15px;
-                border-radius: 8px;
-                border: 1px solid #eee;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 25px 15px;
+                border-radius: 20px;
                 text-align: center;
-                margin-bottom: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                margin-bottom: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
             }
+            
+            /* Avatar con Gradiente */
             .user-avatar {
-                background-color: #990000;
+                background: linear-gradient(135deg, #ff4b4b 0%, #990000 100%);
                 color: white;
-                width: 50px;
-                height: 50px;
-                line-height: 50px;
+                width: 65px;
+                height: 65px;
+                line-height: 65px;
                 border-radius: 50%;
-                font-size: 20px;
+                font-size: 24px;
                 font-weight: bold;
-                margin: 0 auto 8px auto;
+                margin: 0 auto 15px auto;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             }
+            
+            .user-name {
+                color: #ffffff;
+                font-weight: 700;
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            
+            .user-area {
+                color: #a0aec0;
+                font-size: 13px;
+                margin-bottom: 15px;
+            }
+
             .status-tag {
-                color: #2e7d32;
-                font-size: 10px;
+                background-color: rgba(72, 187, 120, 0.2);
+                color: #68d391;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 11px;
                 font-weight: bold;
-                text-transform: uppercase;
+                display: inline-block;
+                border: 1px solid rgba(72, 187, 120, 0.3);
+            }
+
+            /* Botón Cerrar Sesión en Sidebar */
+            .stButton > button {
+                border-radius: 10px !important;
+                background-color: transparent !important;
+                color: #ff4d4d !important;
+                border: 1px solid #ff4d4d !important;
+                font-size: 12px !important;
+                height: 35px !important;
+            }
+            .stButton > button:hover {
+                background-color: #ff4d4d !important;
+                color: white !important;
             }
         </style>
         """, unsafe_allow_html=True)
