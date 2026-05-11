@@ -703,22 +703,6 @@ else:
                 box-shadow: 0 4px 8px rgba(153, 0, 0, 0.2);
             }
 
-            /* Textos del Usuario (Oscuros para leer sobre blanco) */
-            .user-name {
-                font-weight: 700;
-                color: #000000;
-                font-size: 15px;
-                margin-bottom: 2px;
-            }
-            .user-area {
-                color: #000000 !important;
-                font-size: 11px;
-                text-transform: uppercase;
-                font-weight: 600;
-                letter-spacing: 0.5px;
-                margin-bottom: 12px;
-            }
-
             /* Tag de Estado */
             .status-tag {
                 background-color: #E8F5E9;
@@ -760,8 +744,8 @@ else:
         st.markdown(f"""
             <div class="sidebar-user-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                 <div class="user-avatar">{inicial}</div>
-                <div class="user-name" style="margin-top: 10px;">{nombre_completo}</div>
-                <div class="user-area">{user_data['ÁREA']}</div>
+                <div style="color: #000000 !important; font-weight: 800; font-size: 16px; margin-bottom: 2px;">{nombre_completo}</div>
+                <div style="color: #444444 !important; font-size: 12px; font-weight: 600; text-transform: uppercase;">{user_data['ÁREA']}</div>
                 <div style="margin-top: 8px;">
                     <span class="status-tag">● {st.session_state.user_role.upper()}</span>
                 </div>
