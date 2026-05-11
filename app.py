@@ -201,25 +201,84 @@ def login_screen():
 # --- 3. ESTILOS VISUALES ---
 st.markdown("""
 <style>
-    .stApp, .stMain, .main, .block-container, [data-testid="stHeader"] { background-color: #FFFFFF !important; }
-    :root { --bj-red: #990000; --bj-grey: #f0f2f6; }
-    .stApp { background-color: #FFFFFF; font-family: 'Segoe UI', sans-serif; }
-    h1, h2, h3, h4, h5, h6 { color: var(--bj-red) !important; font-weight: 700 !important; }
-    .stTabs [data-baseweb="tab"] { background-color: var(--bj-grey); color: #333; font-weight: 600; border: 1px solid #ddd; }
-    .stTabs [aria-selected="true"] { background-color: var(--bj-red) !important; color: white !important; border: none; }
-    .stSelectbox label, .stTextArea label, .stTextInput label, .stCheckbox label { color: #333 !important; font-size: 14px !important; font-weight: bold !important; }
-    div.stButton > button { background-color: var(--bj-red) !important; color: white !important; font-weight: bold !important; border-radius: 6px !important; border: none !important; width: 100% !important; transition: 0.2s !important; height: 45px !important;}
-    div.stButton > button:hover { background-color: #cc0000 !important; transform: scale(1.01) !important; }
-    .bj-report-box { background-color: #f9f9f9; border: 1px solid #ddd; border-left: 6px solid var(--bj-red); padding: 25px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .bj-report-box p { color: #333 !important; font-size: 15px; margin-bottom: 8px; }
-    .alerta-roja { background-color: #ffe6e6; color: #990000; border: 2px solid #ffcccc; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 15px; font-weight: 500; }
-    .memo-alert { background-color: #ffe6e6; border: 2px solid #cc0000; color: #990000; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 15px; font-size: 16px; }
-    .form-header-box { margin-bottom: 20px; border-bottom: 2px solid var(--bj-red); padding-bottom: 5px; }
-    .legend-box { background-color: #fff8e1; border: 1px dashed #ffb300; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; color: #5d4037; }
-    .btn-gmail { display: inline-block; background-color: #DB4437; color: white !important; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px; }
-    .btn-wa { display: inline-block; background-color: #25D366; color: white !important; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px; }
-    .bj-footer { font-size: 12px; color: #888; text-align: center; margin-top: 50px; border-top: 1px solid #eee; padding-top: 10px; }
-    .m-title { color: #990000 !important; font-weight: bold !important; font-size: 15px; margin-bottom: 5px; margin-top: 10px; }
+    /* Importación de tipografía moderna */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+    html, body, [data-testid="stAppViewContainer"] {
+        font-family: 'Inter', sans-serif;
+        background-color: #F8F9FA;
+    }
+
+    /* Contenedores principales con bordes redondeados suaves */
+    .stMainBlockContainer {
+        background: white;
+        padding: 3rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        margin-top: 2rem;
+    }
+
+    /* Encabezados Profesionales */
+    h1, h2, h3 {
+        color: #1A1A1A !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.5px;
+    }
+
+    /* Botones con Gradiente y Efecto Elevación */
+    div.stButton > button {
+        background: linear-gradient(135deg, #990000 0%, #660000 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.75rem 1.5rem !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 6px rgba(153, 0, 0, 0.2) !important;
+        width: 100% !important;
+    }
+
+    div.stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 12px rgba(153, 0, 0, 0.3) !important;
+    }
+
+    /* Tarjetas de Reporte (Estilo Card) */
+    .bj-report-box {
+        background: #FFFFFF;
+        border: 1px solid #E0E0E0;
+        border-left: 5px solid #990000;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.02);
+    }
+
+    /* Inputs y Textareas más limpios */
+    .stTextArea textarea, .stTextInput input, .stSelectbox [data-baseweb="select"] {
+        border-radius: 8px !important;
+        border: 1px solid #DDE1E6 !important;
+        background-color: #FBFBFB !important;
+    }
+
+    /* Estilo de los Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background-color: transparent;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 45px;
+        background-color: #EEE;
+        border-radius: 8px 8px 0 0;
+        padding: 0 20px;
+        color: #666;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: #990000 !important;
+        color: white !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
