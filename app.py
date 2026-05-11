@@ -182,11 +182,17 @@ def login_screen():
 
                     if not user_match.empty:
                         datos = user_match.iloc[0]
-                        st.session_state.auth = True
-                        # Si es Jefe, le damos su rol; si no, queda como staff
-                        st.session_state.user_role = "jefe" if datos['ROL'].strip().capitalize() == "Jefe" else "staff"
-                        st.session_state.user_data = datos # Guardamos toda su fila
-                        st.rerun()
+                        rol_detectado = datos["ROL"].strip().capitalize()
+
+                        if rol_detectado == "Jefe":
+                            # Si es Jefe, le damos su rol; si no, queda como staff
+                            st.session_state.auth = True
+                            st.session_state.user_role = "jefe" if datos['ROL'].strip().capitalize() == "Jefe" else "staff"
+                            st.session_state.user_data = datos # Guardamos toda su fila
+                            st.success("Bienvenido")
+                            st.rerun()
+                        else:
+                            st.error("🚫 Acceso Denegado: Esta aplicación es de uso exclusivo para Jefes de Área")
                     else:
                         st.error("❌ Credenciales incorrectas o usuario no registrado.")
         st.stop()
