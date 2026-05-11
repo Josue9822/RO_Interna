@@ -684,7 +684,7 @@ else:
     with st.sidebar:
         st.markdown("""
             <div style="text-align: center; padding: 10px 0;">
-                <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">BATALLA DE JUNÍN</h2>
+                <h2 style="color: #FFCDD2; margin: 0; font-size: 20px; letter-spacing: 2px;">BATALLA DE JUNÍN</h2>
                 <p style="color: #FFCDD2; font-size: 10px; margin: 0;">INGENIERÍA Y CONSTRUCCIÓN</p>
             </div>
         """, unsafe_allow_html=True)
