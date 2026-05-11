@@ -684,9 +684,9 @@ else:
     with st.sidebar:
         if os.path.exists(LOGO):
             #Centrado
-            st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)
-            st.image(LOGO, width=100) # He bajado a 100px para que no se vea gigante
-            st.markdown('</div>', unsafe_allow_html=True)
+            col1, col2, col3 = st.sidebar.columns([1, 2, 1])
+            with col2:
+                st.image(LOGO, width=100)
         else:
             st.markdown("""
                 <div style="text-align: center; padding: 10px 0;">
