@@ -662,6 +662,13 @@ else:
     # --- SIDEBAR PROFESIONAL Y COMPACTO ---
     with st.sidebar:
         st.markdown("""
+            <div style="text-align: center; padding: 10px 0;">
+                <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">BATALLA DE JUNÍN</h2>
+                <p style="color: #FFCDD2; font-size: 10px; margin: 0;">INGENIERÍA Y CONSTRUCCIÓN</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
         <style>
             /* Contenedor Principal del Sidebar */
             [data-testid="stSidebar"] {
@@ -670,71 +677,71 @@ else:
                 min-width: 260px !important;
             }
 
-            /* Caja de Usuario - Estilo Cristal (Glassmorphism) */
+            /* CAJA DE USUARIO - Ahora en BLANCO para máximo contraste */
             .sidebar-user-box {
-                background: rgba(255, 255, 255, 0.08);
-                backdrop-filter: blur(10px);
-                padding: 20px;
+                background: #FFFFFF; /* Fondo blanco sólido */
+                padding: 25px 15px;
                 border-radius: 15px;
-                border: 1px solid rgba(255, 255, 255, 0.15);
                 text-align: center;
-                margin: 10px 0 20px 0;
-                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+                margin: 20px 0;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             }
 
-            /* Avatar con Inicial */
+            /* Avatar con Inicial (Rojo sobre Blanco) */
             .user-avatar {
-                background-color: #FFFFFF;
-                color: black;
-                width: 50px;
-                height: 50px;
-                line-height: 50px;
+                background-color: #990000;
+                color: white !important;
+                width: 60px;
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 border-radius: 50%;
-                font-size: 20px;
+                font-size: 24px;
                 font-weight: bold;
-                margin: 0 auto 8px auto;
+                margin: 0 auto 12px auto;
+                box-shadow: 0 4px 8px rgba(153, 0, 0, 0.2);
             }
 
-            /* Textos del Usuario */
+            /* Textos del Usuario (Oscuros para leer sobre blanco) */
             .user-name {
                 font-weight: 700;
-                color: #FFFFFF !important;
+                color: #1A1A1A !important;
                 font-size: 15px;
                 margin-bottom: 2px;
             }
             .user-area {
-                color: #FFCDD2 !important;
+                color: #666666 !important;
                 font-size: 11px;
                 text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 10px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                margin-bottom: 12px;
             }
 
-            /* Tag de Estado (Online) */
+            /* Tag de Estado */
             .status-tag {
-                background-color: rgba(46, 125, 50, 0.2);
-                color: #81C784 !important;
-                font-size: 9px;
+                background-color: #E8F5E9;
+                color: #2E7D32 !important;
+                font-size: 10px;
                 font-weight: bold;
-                padding: 4px 10px;
+                padding: 4px 12px;
                 border-radius: 20px;
                 display: inline-block;
-                border: 1px solid rgba(129, 199, 132, 0.3);
+                border: 1px solid #C8E6C9;
             }
 
-            /* Personalización del Botón de Cerrar Sesión */
+            /* Botón de Cerrar Sesión */
             .stButton > button {
-                background-color: transparent !important;
-                color: #FFCDD2 !important;
+                background-color: rgba(255,255,255,0.1) !important;
+                color: white !important;
                 border: 1px solid rgba(255,255,255,0.3) !important;
                 border-radius: 8px !important;
-                font-size: 12px !important;
-                transition: 0.3s !important;
+                transition: 0.3s;
             }
             .stButton > button:hover {
-                background-color: rgba(255,255,255,0.1) !important;
-                border-color: #FFFFFF !important;
-                color: #FFFFFF !important;
+                background-color: #FFFFFF !important;
+                color: #990000 !important;
             }
         </style>
         """, unsafe_allow_html=True)
