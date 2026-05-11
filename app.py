@@ -670,62 +670,37 @@ else:
 
         st.markdown("""
         <style>
-            /* Contenedor Principal del Sidebar */
             [data-testid="stSidebar"] {
-                background: linear-gradient(180deg, #800000 0%, #4D0000 100%) !important;
-                border-right: 1px solid rgba(255,255,255,0.1);
-                min-width: 260px !important;
+                background-color: #f8f9fa;
+                border-right: 2px solid #990000;
+                min-width: 250px !important;
+                max-width: 300px !important;
             }
-
-            /* CAJA DE USUARIO - Ahora en BLANCO para máximo contraste */
             .sidebar-user-box {
-                background: #FFFFFF; /* Fondo blanco sólido */
-                padding: 25px 15px;
-                border-radius: 15px;
+                background-color: white;
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid #eee;
                 text-align: center;
-                margin: 20px 0;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+                margin-bottom: 10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
-
-            /* Avatar con Inicial (Rojo sobre Blanco) */
             .user-avatar {
                 background-color: #990000;
-                color: white !important;
-                width: 60px;
-                height: 60px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                color: white;
+                width: 50px;
+                height: 50px;
+                line-height: 50px;
                 border-radius: 50%;
-                font-size: 24px;
+                font-size: 20px;
                 font-weight: bold;
-                margin: 0 auto 12px auto;
-                box-shadow: 0 4px 8px rgba(153, 0, 0, 0.2);
+                margin: 0 auto 8px auto;
             }
-
-            /* Tag de Estado */
             .status-tag {
-                background-color: #E8F5E9;
-                color: #2E7D32 !important;
+                color: #2e7d32;
                 font-size: 10px;
                 font-weight: bold;
-                padding: 4px 12px;
-                border-radius: 20px;
-                display: inline-block;
-                border: 1px solid #C8E6C9;
-            }
-
-            /* Botón de Cerrar Sesión */
-            .stButton > button {
-                background-color: rgba(255,255,255,0.1) !important;
-                color: white !important;
-                border: 1px solid rgba(255,255,255,0.3) !important;
-                border-radius: 8px !important;
-                transition: 0.3s;
-            }
-            .stButton > button:hover {
-                background-color: #FFFFFF !important;
-                color: #990000 !important;
+                text-transform: uppercase;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -742,13 +717,11 @@ else:
         inicial = primer_nombre[0].upper()
 
         st.markdown(f"""
-            <div class="sidebar-user-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div class="sidebar-user-box">
                 <div class="user-avatar">{inicial}</div>
-                <div style="color: #000000 !important; font-weight: 800; font-size: 16px; margin-bottom: 2px;">{nombre_completo}</div>
-                <div style="color: #444444 !important; font-size: 12px; font-weight: 600; text-transform: uppercase;">{user_data['ÁREA']}</div>
-                <div style="margin-top: 8px;">
-                    <span class="status-tag">● {st.session_state.user_role.upper()}</span>
-                </div>
+                <div style="font-weight: bold; color: #333; font-size: 14px;">{nombre_completo}</div>
+                <div style="color: #666; font-size: 12px;">{user_data['ÁREA']}</div>
+                <div class="status-tag">● {st.session_state.user_role.upper()}</div>
             </div>
         """, unsafe_allow_html=True)
 
