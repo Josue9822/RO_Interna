@@ -683,33 +683,10 @@ else:
     LOGO = os.path.join(ASSETS_DIR, "logo_new.jpg")
     with st.sidebar:
         if os.path.exists(LOGO):
-            # Contenedor para centrar la imagen y darle aire
-            st.markdown("""
-                <style>
-                    .logo-container {
-                        text-align: center;
-                        padding: 10px 0px 20px 0px;
-                    }
-                    .logo-img {
-                        background-color: white; /* Crea un fondo limpio si la imagen no es transparente */
-                        padding: 10px;
-                        border-radius: 12px; /* Bordes redondeados modernos */
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* Sombra para dar profundidad */
-                        border: 1px solid rgba(255,255,255,0.1);
-                        display: inline-block;
-                    }
-                </style>
-                <div class="logo-container">
-                    <div class="logo-img">
-            """, unsafe_allow_html=True)
-            
-            # Reducimos el ancho a 120 para que no sature el sidebar
-            st.image(LOGO, width=120) 
-            
-            st.markdown("""
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
+            #Centrado
+            st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)
+            st.image(LOGO, width=100) # He bajado a 100px para que no se vea gigante
+            st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.markdown("""
                 <div style="text-align: center; padding: 10px 0;">
