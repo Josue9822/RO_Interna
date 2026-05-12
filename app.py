@@ -141,15 +141,15 @@ def actualizar_en_sheets(ro_id, datos_actualizar: list, nombre_area: str):
                 st.warning("⚠️ Este reporte ya fue cerrado anteriormente.")
                 return False
 
-            hoja.update(
-                values=[datos_actualizar],
-                range_name=f"H{fila_idx}:M{fila_idx}",
-                value_input_option="USER_ENTERED"
-            )
-            return True
-        else:
-            st.error(f"No se encontró el ID {id_buscar} en {nombre_area}")
-            return False
+                hoja.update(
+                    values=[datos_actualizar],
+                    range_name=f"H{fila_idx}:M{fila_idx}",
+                    value_input_option="USER_ENTERED"
+                )
+                return True
+            else:
+                st.error(f"No se encontró el ID {id_buscar} en {nombre_area}")
+                return False
     except Exception as e:
         st.error(f"Error técnico: {e}")
         return False
