@@ -742,7 +742,7 @@ else:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=300)
         else: st.title("BATALLA DE JUNIN")
 
-    st.markdown("<h2 style='text-align:center'>RI – Reporte de Incidencias Internas</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center'>ROI – Reporte de Observaciones Internas</h2>", unsafe_allow_html=True)
 
     if st.session_state.user_role in ["jefe", "subjefe"]:
         t_emitir, t_stats = st.tabs(["📄 PAPELETA RI", "📊 ESTADÍSTICAS"])
