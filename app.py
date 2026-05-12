@@ -15,7 +15,7 @@ import json
 from zoneinfo import ZoneInfo
 
 # --- 1. CONFIGURACIÓN ---
-st.set_page_config(page_title="ROI - Batalla de Junin", page_icon="🏗️", layout="centered")
+st.set_page_config(page_title="RI - Batalla de Junin", page_icon="🏗️", layout="centered")
 
 URL_SHEETS = "https://docs.google.com/spreadsheets/d/1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8/edit?usp=sharing"
 SPREADSHEET_ID = "1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8"
@@ -201,79 +201,25 @@ def login_screen():
 # --- 3. ESTILOS VISUALES ---
 st.markdown("""
 <style>
-    /* Fondo general y contenedores */
-    .stApp { 
-        background-color: #fdfdfd; 
-        font-family: 'Inter', 'Segoe UI', sans-serif; 
-    }
-    
-    /* Encabezados Profesionales */
-    h1, h2, h3 { 
-        color: #800000 !important; 
-        font-weight: 800 !important;
-        letter-spacing: -0.5px;
-    }
-    
-    /* Caja de Reporte Estilo Card */
-    .bj-report-box { 
-        background: white; 
-        border: none; 
-        border-radius: 15px;
-        padding: 30px; 
-        margin-bottom: 25px; 
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        border-top: 5px solid #990000;
-    }
-    
-    /* Inputs y TextAreas */
-    .stTextArea textarea {
-        border-radius: 10px !important;
-        border: 1px solid #e0e0e0 !important;
-        transition: all 0.3s ease;
-    }
-    .stTextArea textarea:focus {
-        border-color: #990000 !important;
-        box-shadow: 0 0 0 2px rgba(153,0,0,0.1) !important;
-    }
-
-    /* Botones de Acción Principal */
-    div.stButton > button { 
-        background: linear-gradient(135deg, #990000 0%, #660000 100%) !important;
-        color: white !important; 
-        border-radius: 12px !important; 
-        border: none !important; 
-        height: 50px !important;
-        font-size: 16px !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.4s ease !important;
-    }
-    div.stButton > button:hover { 
-        transform: translateY(-2px) !important;
-        box-shadow: 0 5px 15px rgba(153,0,0,0.3) !important;
-    }
-
-    /* Tabs Personalizados */
-    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
-    .stTabs [data-baseweb="tab"] {
-        background-color: #f0f2f6;
-        border-radius: 10px 10px 0 0;
-        padding: 10px 20px;
-        color: #444;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #990000 !important;
-        color: white !important;
-    }
-
-    /* Alertas y Memos */
-    .alerta-roja { 
-        background-color: #fff5f5; 
-        color: #c53030; 
-        border-left: 5px solid #c53030;
-        padding: 20px;
-        border-radius: 8px;
-    }
+    .stApp, .stMain, .main, .block-container, [data-testid="stHeader"] { background-color: #FFFFFF !important; }
+    :root { --bj-red: #990000; --bj-grey: #f0f2f6; }
+    .stApp { background-color: #FFFFFF; font-family: 'Segoe UI', sans-serif; }
+    h1, h2, h3, h4, h5, h6 { color: var(--bj-red) !important; font-weight: 700 !important; }
+    .stTabs [data-baseweb="tab"] { background-color: var(--bj-grey); color: #333; font-weight: 600; border: 1px solid #ddd; }
+    .stTabs [aria-selected="true"] { background-color: var(--bj-red) !important; color: white !important; border: none; }
+    .stSelectbox label, .stTextArea label, .stTextInput label, .stCheckbox label { color: #333 !important; font-size: 14px !important; font-weight: bold !important; }
+    div.stButton > button { background-color: var(--bj-red) !important; color: white !important; font-weight: bold !important; border-radius: 6px !important; border: none !important; width: 100% !important; transition: 0.2s !important; height: 45px !important;}
+    div.stButton > button:hover { background-color: #cc0000 !important; transform: scale(1.01) !important; }
+    .bj-report-box { background-color: #f9f9f9; border: 1px solid #ddd; border-left: 6px solid var(--bj-red); padding: 25px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .bj-report-box p { color: #333 !important; font-size: 15px; margin-bottom: 8px; }
+    .alerta-roja { background-color: #ffe6e6; color: #990000; border: 2px solid #ffcccc; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 15px; font-weight: 500; }
+    .memo-alert { background-color: #ffe6e6; border: 2px solid #cc0000; color: #990000; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 15px; font-size: 16px; }
+    .form-header-box { margin-bottom: 20px; border-bottom: 2px solid var(--bj-red); padding-bottom: 5px; }
+    .legend-box { background-color: #fff8e1; border: 1px dashed #ffb300; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; color: #5d4037; }
+    .btn-gmail { display: inline-block; background-color: #DB4437; color: white !important; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px; }
+    .btn-wa { display: inline-block; background-color: #25D366; color: white !important; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px; }
+    .bj-footer { font-size: 12px; color: #888; text-align: center; margin-top: 50px; border-top: 1px solid #eee; padding-top: 10px; }
+    .m-title { color: #990000 !important; font-weight: bold !important; font-size: 15px; margin-bottom: 5px; margin-top: 10px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -679,72 +625,40 @@ else:
 
     # --- SIDEBAR PERSONALIZADO ---
     # --- SIDEBAR PROFESIONAL Y COMPACTO ---
-
-    LOGO = os.path.join(ASSETS_DIR, "logo_new.jpg")
     with st.sidebar:
         st.markdown("""
-            <div style="text-align: center; padding: 10px 0;">
-                <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">BATALLA DE JUNÍN</h2>
-                <p style="color: #FFCDD2; font-size: 10px; margin: 0;">INGENIERÍA Y CONSTRUCCIÓN</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
         <style>
-            /* Contenedor del Sidebar */
             [data-testid="stSidebar"] {
-                background-color: #1a1c23; /* Oscuro Elegante */
-                color: #ffffff;
+                background-color: #f8f9fa;
+                border-right: 2px solid #990000;
+                min-width: 250px !important;
+                max-width: 300px !important;
             }
-            
-            /* Caja de Perfil de Usuario */
             .sidebar-user-box {
-                background: rgba(255, 255, 255, 0.05);
-                padding: 25px 15px;
-                border-radius: 20px;
+                background-color: white;
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid #eee;
                 text-align: center;
-                margin-bottom: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
+                margin-bottom: 10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
-            
-            /* Avatar con Gradiente */
             .user-avatar {
-                background: linear-gradient(135deg, #ff4b4b 0%, #990000 100%);
+                background-color: #990000;
                 color: white;
-                width: 65px;
-                height: 65px;
-                line-height: 65px;
+                width: 50px;
+                height: 50px;
+                line-height: 50px;
                 border-radius: 50%;
-                font-size: 24px;
+                font-size: 20px;
                 font-weight: bold;
-                margin: 0 auto 15px auto;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                margin: 0 auto 8px auto;
             }
-            
             .status-tag {
-                background-color: rgba(72, 187, 120, 0.2);
-                color: #68d391;
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 11px;
+                color: #2e7d32;
+                font-size: 10px;
                 font-weight: bold;
-                display: inline-block;
-                border: 1px solid rgba(72, 187, 120, 0.3);
-            }
-
-            /* Botón Cerrar Sesión en Sidebar */
-            .stButton > button {
-                border-radius: 10px !important;
-                background-color: transparent !important;
-                color: #ff4d4d !important;
-                border: 1px solid #ff4d4d !important;
-                font-size: 12px !important;
-                height: 35px !important;
-            }
-            .stButton > button:hover {
-                background-color: #ff4d4d !important;
-                color: white !important;
+                text-transform: uppercase;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -763,13 +677,13 @@ else:
         st.markdown(f"""
             <div class="sidebar-user-box">
                 <div class="user-avatar">{inicial}</div>
-                <div style="font-weight: bold; color: #FFFFFF; font-size: 14px;">{nombre_completo}</div>
-                <div style="color: #FFFFFF; font-size: 12px;">{user_data['ÁREA']}</div>
+                <div style="font-weight: bold; color: #333; font-size: 14px;">{nombre_completo}</div>
+                <div style="color: #666; font-size: 12px;">{user_data['ÁREA']}</div>
                 <div class="status-tag">● {st.session_state.user_role.upper()}</div>
             </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("<div style='margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);'></div>", unsafe_allow_html=True)
+        st.markdown("---")
         
         # 3. Botón de Cerrar Sesión (Menos alto)
         if st.button("CERRAR SESIÓN", use_container_width=True):
@@ -780,9 +694,9 @@ else:
 
         # Pie de página pequeño
         st.markdown(f"""
-            <div style='text-align: center; margin-top: 50px; font-size: 10px; color: #FFFFFF;'>
+            <div style='text-align: center; margin-top: 30px; font-size: 10px; color: #bbb;'>
                 SGC BJ - 2026<br>
-                <strong>Batalla de Junín S.A.C.</strong>
+                Batalla de Junín S.A.C.
             </div>
         """, unsafe_allow_html=True)
 
@@ -792,10 +706,10 @@ else:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=300)
         else: st.title("BATALLA DE JUNIN")
 
-    st.markdown("<h2 style='text-align:center'>ROI – Reporte de Observaciones Internas</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center'>RI – Reporte de Incidencias Internas</h2>", unsafe_allow_html=True)
 
     if st.session_state.user_role in ["jefe", "subjefe"]:
-        t_emitir, t_stats = st.tabs(["📄 PAPELETA ROI", "📊 ESTADÍSTICAS"])
+        t_emitir, t_stats = st.tabs(["📄 PAPELETA RI", "📊 ESTADÍSTICAS"])
     else:
         t_stats = st.tabs(["📊 ESTADÍSTICAS"])[0]
         t_emitir = None
@@ -810,13 +724,14 @@ else:
             rol_emisor = str(jefe_actual.get('ROL', '')).strip().capitalize()
 
             st.markdown(f'<div class="form-header-box"><h4>Generar Reporte - Área: {area_jefe}</h4></div>', unsafe_allow_html=True)
-            st.info(f"Sesión iniciada como: **{emisor}**")
+            st.info(f"Sesión iniciada como: **{emisor}** ({rol_emisor})")
 
             # --- PREPARACIÓN DE DATOS ---
             df_empleados.columns = [str(c).strip().upper() for c in df_empleados.columns]
 
             # 2. FILTRADO DINÁMICO JERÁRQUICO
             if rol_emisor == "Jefe":
+                # CASO JEFE (Ej. Kevin): Ve a todos en su área (Subjefes + Equipo)
                 # Solo se excluye a sí mismo para no auto-reportarse
                 df_filtrado = df_empleados[
                     (df_empleados['ÁREA'] == area_jefe) & 
