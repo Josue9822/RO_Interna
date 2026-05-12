@@ -15,7 +15,7 @@ import json
 from zoneinfo import ZoneInfo
 
 # --- 1. CONFIGURACIÓN ---
-st.set_page_config(page_title="RI - Batalla de Junin", page_icon="🏗️", layout="centered")
+st.set_page_config(page_title="ROI - Batalla de Junin", page_icon="🏗️", layout="centered")
 
 URL_SHEETS = "https://docs.google.com/spreadsheets/d/1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8/edit?usp=sharing"
 SPREADSHEET_ID = "1zFug8ZcmhNzZ24LX8oEu-sKqfUenpbIJs8DB6t_0Ch8"
@@ -745,7 +745,7 @@ else:
     st.markdown("<h2 style='text-align:center'>ROI – Reporte de Observaciones Internas</h2>", unsafe_allow_html=True)
 
     if st.session_state.user_role in ["jefe", "subjefe"]:
-        t_emitir, t_stats = st.tabs(["📄 PAPELETA RI", "📊 ESTADÍSTICAS"])
+        t_emitir, t_stats = st.tabs(["📄 PAPELETA ROI", "📊 ESTADÍSTICAS"])
     else:
         t_stats = st.tabs(["📊 ESTADÍSTICAS"])[0]
         t_emitir = None
