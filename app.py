@@ -826,7 +826,7 @@ else:
                         app_url = st.secrets.get("APP_URL", "http://localhost:8501")
                         link = f"{app_url}/?ro_id={last_id}&area={urllib.parse.quote(str(area_receptor))}"
                         
-                        st.success(f"✅ Papeleta RI Generada Exitosamente")
+                        st.success(f"✅ Papeleta ROI Generada Exitosamente")
                         st.code(link)
                         
                         col_g, col_w = st.columns(2)
